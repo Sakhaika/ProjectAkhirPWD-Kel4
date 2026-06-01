@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rinjani — Wisata & SIMAKSI Gunung Rinjani</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- NAVIGASI -->
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">🏔 Rinjani<span>.</span></a>
+        <div class="nav-links">
+          <a href="index.html" class="active">Beranda</a>
+          <a href="destinasi.html">Destinasi</a>
+          <a href="jalur.html">Jalur Pendakian</a>
+          <a href="simaksi.html" class="nav-cta">Daftar SIMAKSI</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-content container fade-up">
+        <div class="hero-badge">🏔 Lombok, Nusa Tenggara Barat</div>
+        <h1>Jelajahi<br />Gunung <em>Rinjani</em></h1>
+        <p>
+          Puncak tertinggi kedua di Indonesia. 3.726 mdpl. Danau vulkanik,
+          savana luas, dan pengalaman mendaki yang tak terlupakan.
+        </p>
+        <div class="hero-actions">
+          <a href="simaksi.html" class="btn btn-primary">📋 Daftar SIMAKSI</a>
+          <a href="destinasi.html" class="btn btn-outline"
+            >Jelajahi Destinasi →</a
+          >
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>3.726 m</strong>
+            <span>Ketinggian Puncak</span>
+          </div>
+          <div class="hero-stat">
+            <strong>3 Jalur</strong>
+            <span>Resmi Pendakian</span>
+          </div>
+          <div class="hero-stat">
+            <strong>75 Org/hari</strong>
+            <span>Kuota Total</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- JALUR PENDAKIAN SINGKAT -->
+    <section class="section section-alt">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Jalur Resmi</div>
+          <h2>Pilih Jalur Pendakian</h2>
+          <p>
+            Tiga jalur resmi dengan karakteristik berbeda. Pilih sesuai
+            kemampuan dan waktu Anda.
+          </p>
+        </div>
+        <div class="grid-3" id="jalur-list"></div>
+      </div>
+    </section>
+
+    <!-- DESTINASI WISATA -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Wisata Sekitar</div>
+          <h2>Destinasi Unggulan</h2>
+          <p>
+            Selain pendakian, kawasan Rinjani menyimpan banyak keindahan alam
+            yang sayang untuk dilewatkan.
+          </p>
+        </div>
+        <div class="grid-2" id="destinasi-list"></div>
+        <div class="text-center mt-3">
+          <a href="destinasi.html" class="btn btn-green"
+            >Lihat Semua Destinasi →</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- TENTANG SIMAKSI -->
+    <section class="section section-alt">
+      <div class="container">
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+          "
+        >
+          <div>
+            <div class="section-tag">SIMAKSI Online</div>
+            <h2
+              style="
+                font-family: var(--font-display);
+                font-size: 2.2rem;
+                color: var(--green-deep);
+                margin-bottom: 1rem;
+                line-height: 1.2;
+              "
+            >
+              Surat Izin Masuk Kawasan secara Digital
+            </h2>
+            <p style="color: var(--text-mid); margin-bottom: 1.5rem">
+              SIMAKSI (Surat Izin Masuk Kawasan Konservasi) wajib dimiliki
+              setiap pendaki sebelum memasuki kawasan Taman Nasional Gunung
+              Rinjani. Daftar online lebih mudah dan cepat.
+            </p>
+            <ul style="list-style: none; margin-bottom: 2rem">
+              <li
+                style="
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 10px;
+                  font-size: 0.9rem;
+                  color: var(--text-mid);
+                "
+              >
+                <span style="color: var(--green-mid); font-weight: 700">✓</span>
+                Cek kuota pendakian real-time
+              </li>
+              <li
+                style="
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 10px;
+                  font-size: 0.9rem;
+                  color: var(--text-mid);
+                "
+              >
+                <span style="color: var(--green-mid); font-weight: 700">✓</span>
+                Daftar untuk kelompok hingga 10 orang
+              </li>
+              <li
+                style="
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 10px;
+                  font-size: 0.9rem;
+                  color: var(--text-mid);
+                "
+              >
+                <span style="color: var(--green-mid); font-weight: 700">✓</span>
+                Nomor SIMAKSI otomatis setelah disetujui
+              </li>
+              <li
+                style="
+                  display: flex;
+                  gap: 10px;
+                  margin-bottom: 10px;
+                  font-size: 0.9rem;
+                  color: var(--text-mid);
+                "
+              >
+                <span style="color: var(--green-mid); font-weight: 700">✓</span>
+                Cek status pendaftaran kapan saja
+              </li>
+            </ul>
+            <a href="simaksi.html" class="btn btn-primary"
+              >Mulai Pendaftaran →</a
+            >
+          </div>
+          <div
+            style="
+              background: var(--green-pale);
+              border-radius: var(--radius);
+              padding: 2rem;
+            "
+          >
+            <div
+              style="
+                font-family: var(--font-display);
+                font-size: 1rem;
+                color: var(--green-deep);
+                margin-bottom: 1rem;
+                font-weight: 600;
+              "
+            >
+              Kuota Pendakian Hari Ini
+            </div>
+            <div id="kuota-today"></div>
+            <div
+              style="
+                font-size: 0.75rem;
+                color: var(--text-soft);
+                margin-top: 1rem;
+              "
+            >
+              * Kuota bisa berubah sewaktu-waktu. Daftar segera untuk
+              mengamankan tempat.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INFO TIPS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-tag">Panduan Pendaki</div>
+          <h2>Sebelum Mendaki Rinjani</h2>
+        </div>
+        <div class="grid-3">
+          <div class="form-card">
+            <div style="font-size: 2rem; margin-bottom: 1rem">🏥</div>
+            <h3
+              style="
+                font-family: var(--font-display);
+                color: var(--green-deep);
+                margin-bottom: 0.5rem;
+              "
+            >
+              Persiapan Fisik
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--text-mid)">
+              Lakukan latihan fisik minimal 2 bulan sebelum pendakian. Rinjani
+              memerlukan kondisi fisik prima, terutama untuk jalur Sembalun.
+            </p>
+          </div>
+          <div class="form-card">
+            <div style="font-size: 2rem; margin-bottom: 1rem">🧰</div>
+            <h3
+              style="
+                font-family: var(--font-display);
+                color: var(--green-deep);
+                margin-bottom: 0.5rem;
+              "
+            >
+              Perlengkapan Wajib
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--text-mid)">
+              Tenda, sleeping bag (suhu -5°C), rain cover, headlamp, P3K, dan
+              perbekalan makanan cukup untuk durasi pendakian.
+            </p>
+          </div>
+          <div class="form-card">
+            <div style="font-size: 2rem; margin-bottom: 1rem">🌿</div>
+            <h3
+              style="
+                font-family: var(--font-display);
+                color: var(--green-deep);
+                margin-bottom: 0.5rem;
+              "
+            >
+              Leave No Trace
+            </h3>
+            <p style="font-size: 0.875rem; color: var(--text-mid)">
+              Bawa turun semua sampah. Dilarang memetik bunga Edelweis. Jaga
+              jalur tetap bersih untuk generasi mendatang.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">🏔 Rinjani<span>.</span></div>
+          <p>
+            Portal resmi wisata dan pendaftaran SIMAKSI Taman Nasional Gunung
+            Rinjani. Bagian dari project akademik pengembangan sistem informasi
+            pariwisata.
+          </p>
+        </div>
+        <div>
+          <h4>Navigasi</h4>
+          <ul>
+            <li><a href="index.html">Beranda</a></li>
+            <li><a href="destinasi.html">Destinasi</a></li>
+            <li><a href="jalur.html">Jalur Pendakian</a></li>
+            <li><a href="simaksi.html">Daftar SIMAKSI</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Info Kontak</h4>
+          <ul>
+            <li><a href="#">BTNGR Mataram</a></li>
+            <li><a href="#">📞 (0370) 641124</a></li>
+            <li><a href="#">✉ btngr@gmail.com</a></li>
+            <li><a href="admin/login.html">Admin Login</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          © 2024 Rinjani Tourism & SIMAKSI — Project Akhir Website Pariwisata
+        </p>
+      </div>
+    </footer>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="data/database.js"></script>
+    <script>
+      DB.init();
+
+      // Render jalur
+      const jalurEl = document.getElementById("jalur-list");
+      DB.getJalur().forEach((j) => {
+        jalurEl.innerHTML += `
+    <div class="card" onclick="location.href='jalur.html#${j.id}'">
+      <img class="card-img" src="${j.gambar}" alt="${j.nama}" loading="lazy">
+      <div class="card-body">
+        <div class="card-tag">📍 ${j.jarak}</div>
+        <div class="card-title">${j.nama}</div>
+        <div class="card-text">${j.deskripsi}</div>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta">
+          <span>⏱ ${j.estimasi}</span>
+          <span>• ↑ ${j.ketinggian} m</span>
+        </div>
+        <span class="badge badge-${j.tingkat.toLowerCase().replace(" ", "-")}">${j.tingkat}</span>
+      </div>
+    </div>`;
+      });
+
+      // Render destinasi (hanya 4)
+      const destEl = document.getElementById("destinasi-list");
+      DB.getDestinasi()
+        .slice(0, 4)
+        .forEach((d) => {
+          const stars =
+            "★".repeat(Math.floor(d.rating)) +
+            "☆".repeat(5 - Math.floor(d.rating));
+          destEl.innerHTML += `
+    <div class="card" onclick="location.href='destinasi.html#${d.id}'">
+      <img class="card-img" src="${d.gambar}" alt="${d.nama}" loading="lazy" style="height:220px">
+      <div class="card-body">
+        <div class="card-tag amber">${d.kategori}</div>
+        <div class="card-title">${d.nama}</div>
+        <div class="card-text">${d.deskripsi}</div>
+      </div>
+      <div class="card-footer">
+        <div class="rating">${stars} <span style="color:var(--text-soft);font-size:0.8rem;">${d.rating}</span></div>
+        <div class="card-meta">🎟 ${d.tiket}</div>
+      </div>
+    </div>`;
+        });
+
+      // Kuota hari ini
+      const today = new Date().toISOString().split("T")[0];
+      const jalurAll = DB.getJalur();
+      const kuotaEl = document.getElementById("kuota-today");
+      jalurAll.forEach((j) => {
+        const k = DB.getKuotaByJalurTanggal(j.id, today);
+        if (!k) return;
+        const pct = (k.terisi / k.kapasitas) * 100;
+        const fillClass =
+          pct >= 100 ? "kuota-full" : pct >= 70 ? "kuota-warn" : "kuota-ok";
+        const badgeClass =
+          pct >= 100
+            ? "kuota-full-badge"
+            : pct >= 70
+              ? "kuota-warn-badge"
+              : "kuota-ok-badge";
+        const badgeText =
+          pct >= 100 ? "Penuh" : pct >= 70 ? "Hampir Penuh" : "Tersedia";
+        kuotaEl.innerHTML += `
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <span style="font-size:0.85rem;font-weight:600;color:var(--green-deep);">${j.nama}</span>
+        <span class="kuota-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct, 100)}%"></div></div>
+      <div style="font-size:0.75rem;color:var(--text-soft);">${k.sisa} dari ${k.kapasitas} kuota tersisa</div>
+    </div>`;
+      });
+    </script>
+  </body>
+</html>
