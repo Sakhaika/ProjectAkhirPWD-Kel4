@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Admin — SIMAKSI Rinjani</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">
+      🏔 Rinjani<span style="color:var(--amber);">.</span>
+      <small>Panel Admin SIMAKSI</small>
+    </div>
+    <nav class="admin-nav">
+      <a href="dashboard.html" class="active">📊 Dashboard</a>
+      <a href="pendaftaran.html">📋 Pendaftaran</a>
+      <a href="kuota.html">📅 Kelola Kuota</a>
+      <a href="../index.html" target="_blank">🌐 Lihat Website</a>
+      <a href="#" onclick="doLogout()" style="margin-top:auto;color:rgba(255,100,100,0.7);">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+    <div class="admin-header">
+      <div>
+        <h1>Dashboard</h1>
+        <div style="font-size:0.85rem;color:var(--text-soft);">Selamat datang, <span id="admin-name"></span></div>
+      </div>
+      <div style="font-size:0.85rem;color:var(--text-soft);" id="today-date"></div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="stat-cards" id="stat-cards"></div>
+
+    <!-- Baris bawah: pending + kuota -->
+    <div style="display:grid;grid-template-columns:1.6fr 1fr;gap:1.5rem;">
+
+      <!-- Pending terbaru -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <h3>Pendaftaran Terbaru</h3>
+          <a href="pendaftaran.html" class="btn btn-green btn-sm">Lihat Semua</a>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="tbl-pending">
+            <thead><tr>
+              <th>No. SIMAKSI</th><th>Ketua</th><th>Jalur</th><th>Tgl Naik</th><th>Status</th>
+            </tr></thead>
+            <tbody id="tbody-pending"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Kuota hari ini -->
+      <div class="table-wrap">
+        <div class="table-header"><h3>Kuota Hari Ini</h3></div>
+        <div style="padding:1rem;" id="kuota-sidebar"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script src="../data/database.js"></script>
+<script>
+  DB.init();
+  const session = DB.getSession();
+  if (!session) location.href = 'login.html';
+
+  document.getElementById('admin-name').textContent = session.nama;
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  const semua = DB.getPendaftaran();
+  const pending = semua.filter(p => p.status === 'pending');
+  const approved = semua.filter(p => p.status === 'approved');
+  const rejected = semua.filter(p => p.status === 'rejected');
+
+  // Stat cards
+  document.getElementById('stat-cards').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Pendaftaran</div><div class="stat-val">${semua.length}</div><div class="stat-sub">Semua waktu</div></div>
+    <div class="stat-card"><div class="stat-label">Menunggu Verifikasi</div><div class="stat-val" style="color:var(--amber);">${pending.length}</div><div class="stat-sub">Perlu tindakan</div></div>
+    <div class="stat-card"><div class="stat-label">Disetujui</div><div class="stat-val" style="color:var(--green-mid);">${approved.length}</div><div class="stat-sub">Aktif</div></div>
+    <div class="stat-card"><div class="stat-label">Total Pendaki</div><div class="stat-val">${semua.reduce((a,p)=>a+p.jumlah,0)}</div><div class="stat-sub">Orang terdaftar</div></div>`;
+
+  // Tabel pending terbaru (5 terakhir)
+  const tbody = document.getElementById('tbody-pending');
+  const recent = [...semua].sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).slice(0,8);
+  if (recent.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-soft);padding:2rem;">Belum ada pendaftaran</td></tr>';
+  } else {
+    recent.forEach(p => {
+      const sc = p.status==='approved'?'badge-approved':p.status==='rejected'?'badge-rejected':'badge-pending';
+      const st = p.status==='approved'?'Disetujui':p.status==='rejected'?'Ditolak':'Pending';
+      tbody.innerHTML += `<tr>
+        <td style="font-family:monospace;font-size:0.8rem;">${p.id}</td>
+        <td>${p.ketua}</td>
+        <td style="font-size:0.82rem;">${p.jalurNama}</td>
+        <td style="font-size:0.82rem;">${new Date(p.tglNaik+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</td>
+        <td><span class="badge ${sc}">${st}</span></td>
+      </tr>`;
+    });
+  }
+
+  // Kuota sidebar
+  const todayStr = new Date().toISOString().split('T')[0];
+  const jalurAll = DB.getJalur();
+  const ks = document.getElementById('kuota-sidebar');
+  jalurAll.forEach(j => {
+    const k = DB.getKuotaByJalurTanggal(j.id, todayStr);
+    if (!k) return;
+    const pct = (k.terisi / k.kapasitas) * 100;
+    const fc = pct >= 100 ? 'kuota-full' : pct >= 70 ? 'kuota-warn' : 'kuota-ok';
+    ks.innerHTML += `
+    <div style="margin-bottom:1rem;">
+      <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:4px;">
+        <span style="font-weight:600;color:var(--green-deep);">${j.nama}</span>
+        <span style="color:var(--text-soft);">${k.sisa}/${k.kapasitas}</span>
+      </div>
+      <div class="kuota-bar"><div class="kuota-fill ${fc}" style="width:${Math.min(pct,100)}%"></div></div>
+    </div>`;
+  });
+
+  function doLogout() {
+    if (confirm('Yakin ingin logout?')) { DB.logout(); location.href = 'login.html'; }
+  }
+</script>
+</body>
+</html>

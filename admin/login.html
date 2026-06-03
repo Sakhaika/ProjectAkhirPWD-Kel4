@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin — SIMAKSI Rinjani</title>
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--green-deep); }
+    .login-box {
+      background:var(--white); border-radius:var(--radius);
+      padding:2.5rem; width:100%; max-width:400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .login-logo {
+      text-align:center; margin-bottom:2rem;
+      font-family:var(--font-display); font-size:1.5rem; color:var(--green-deep);
+    }
+    .login-logo small { display:block; font-family:var(--font-body); font-size:0.8rem; color:var(--text-soft); font-weight:400; margin-top:2px; }
+  </style>
+</head>
+<body>
+<div class="login-box">
+  <div class="login-logo">
+    🏔 Rinjani<span style="color:var(--amber);">.</span>
+    <small>Admin SIMAKSI Panel</small>
+  </div>
+  <div id="login-error" class="alert alert-error hidden">Username atau password salah.</div>
+  <div class="form-group">
+    <label>Username</label>
+    <input type="text" id="username" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" id="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <button class="btn btn-green w-full" style="margin-top:0.5rem;" onclick="doLogin()">Masuk ke Dashboard</button>
+  <div style="text-align:center;margin-top:1.5rem;">
+    <a href="../index.html" style="font-size:0.85rem;color:var(--text-soft);text-decoration:none;">← Kembali ke Website</a>
+  </div>
+  <div style="text-align:center;margin-top:1rem;font-size:0.75rem;color:var(--text-soft);">
+    Demo: username <code>admin</code> / password <code>rinjani2024</code>
+  </div>
+</div>
+<script src="../data/database.js"></script>
+<script>
+  DB.init();
+  if (DB.getSession()) location.href = 'dashboard.html';
+
+  function doLogin() {
+    const u = document.getElementById('username').value.trim();
+    const p = document.getElementById('password').value;
+    const admin = DB.login(u, p);
+    if (admin) {
+      DB.setSession(admin);
+      location.href = 'dashboard.html';
+    } else {
+      document.getElementById('login-error').classList.remove('hidden');
+    }
+  }
+</script>
+</body>
+</html>

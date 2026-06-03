@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Destinasi Wisata — Rinjani</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🏔 Rinjani<span>.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Beranda</a>
+      <a href="destinasi.html" class="active">Destinasi</a>
+      <a href="jalur.html">Jalur Pendakian</a>
+      <a href="simaksi.html" class="nav-cta">Daftar SIMAKSI</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb"><a href="index.html">Beranda</a> › Destinasi</div>
+  <h1>Destinasi Wisata Rinjani</h1>
+  <p>Temukan keindahan alam Lombok dari danau vulkanik hingga pantai biru jernih</p>
+</div>
+
+<!-- Filter Kategori -->
+<section class="section section-alt" style="padding:2rem;">
+  <div class="container">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem;" id="filter-bar">
+      <button class="btn btn-green btn-sm active-filter" data-cat="semua" onclick="filterDest(this,'semua')">Semua</button>
+    </div>
+    <div class="grid-2" id="dest-grid"></div>
+  </div>
+</section>
+
+<!-- Modal Detail -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal-content"></div>
+</div>
+
+<footer class="footer">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;padding:1rem 0;">
+    <p>© 2024 Rinjani Tourism & SIMAKSI — Project Akhir Website Pariwisata</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+<script src="data/database.js"></script>
+<script>
+  DB.init();
+  const dest = DB.getDestinasi();
+
+  // Kumpulkan kategori unik
+  const cats = ['semua', ...new Set(dest.map(d => d.kategori))];
+  const filterBar = document.getElementById('filter-bar');
+  filterBar.innerHTML = '';
+  cats.forEach(c => {
+    const isActive = c === 'semua';
+    filterBar.innerHTML += `<button class="btn btn-sm ${isActive ? 'btn-green' : 'btn-outline'}" 
+      style="${isActive ? '' : 'color:var(--green-mid);border-color:var(--green-mid);'}"
+      data-cat="${c}" onclick="filterDest(this,'${c}')">${c === 'semua' ? 'Semua' : c}</button>`;
+  });
+
+  function renderDest(list) {
+    const grid = document.getElementById('dest-grid');
+    grid.innerHTML = '';
+    list.forEach(d => {
+      const stars = '★'.repeat(Math.floor(d.rating)) + (d.rating % 1 >= 0.5 ? '½' : '☆'.repeat(5 - Math.ceil(d.rating)));
+      grid.innerHTML += `
+      <div class="card fade-up" onclick="openModal('${d.id}')">
+        <img class="card-img" src="${d.gambar}" alt="${d.nama}" loading="lazy" style="height:240px">
+        <div class="card-body">
+          <div class="card-tag amber">${d.kategori}</div>
+          <div class="card-title">${d.nama}</div>
+          <div class="card-text">${d.deskripsi}</div>
+          <div style="margin-top:10px;font-size:0.82rem;color:var(--text-soft);">
+            📍 ${d.lokasi}
+          </div>
+        </div>
+        <div class="card-footer">
+          <div class="rating">${stars} <span style="color:var(--text-soft);font-size:0.8rem;">${d.rating}/5</span></div>
+          <div style="font-size:0.8rem;color:var(--text-mid);">🎟 ${d.tiket}</div>
+        </div>
+      </div>`;
+    });
+    if (list.length === 0) {
+      grid.innerHTML = '<div style="text-align:center;padding:3rem;color:var(--text-soft);grid-column:1/-1;">Tidak ada destinasi ditemukan.</div>';
+    }
+  }
+
+  function filterDest(btn, cat) {
+    document.querySelectorAll('#filter-bar button').forEach(b => {
+      b.className = 'btn btn-sm btn-outline';
+      b.style.color = 'var(--green-mid)';
+      b.style.borderColor = 'var(--green-mid)';
+    });
+    btn.className = 'btn btn-sm btn-green';
+    btn.style.color = '';
+    btn.style.borderColor = '';
+    const filtered = cat === 'semua' ? dest : dest.filter(d => d.kategori === cat);
+    renderDest(filtered);
+  }
+
+  function openModal(id) {
+    const d = dest.find(x => x.id === id);
+    if (!d) return;
+    const stars = '★'.repeat(Math.floor(d.rating));
+    document.getElementById('modal-content').innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <img src="${d.gambar}" alt="${d.nama}" style="width:100%;height:200px;object-fit:cover;border-radius:8px;margin-bottom:1rem">
+      <div style="display:inline-block;background:var(--amber-pale);color:var(--amber-dark);font-size:0.75rem;font-weight:600;padding:4px 10px;border-radius:100px;margin-bottom:0.75rem;">${d.kategori}</div>
+      <h3>${d.nama}</h3>
+      <div style="margin:0.5rem 0 1rem;">
+        <span class="rating">${stars}</span>
+        <span style="font-size:0.85rem;color:var(--text-soft);margin-left:4px;">${d.rating}/5</span>
+      </div>
+      <p style="font-size:0.9rem;color:var(--text-mid);margin-bottom:1rem;">${d.deskripsi}</p>
+      <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.875rem;">
+          <div><span style="color:var(--text-soft);">Lokasi</span><br><strong>${d.lokasi}</strong></div>
+          <div><span style="color:var(--text-soft);">Tiket Masuk</span><br><strong>${d.tiket}</strong></div>
+        </div>
+      </div>
+      <div style="margin-top:1.25rem;display:flex;gap:8px;">
+        <a href="simaksi.html" class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">📋 Daftar SIMAKSI</a>
+        <button class="btn btn-outline btn-sm" onclick="closeModal()" style="color:var(--text-mid);">Tutup</button>
+      </div>`;
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal(e) {
+    if (!e || e.target === document.getElementById('modal-overlay')) {
+      document.getElementById('modal-overlay').classList.remove('open');
+    }
+  }
+
+  // Handle anchor dari halaman lain
+  renderDest(dest);
+  if (location.hash) {
+    const id = location.hash.replace('#','');
+    setTimeout(() => openModal(id), 300);
+  }
+</script>
+</body>
+</html>

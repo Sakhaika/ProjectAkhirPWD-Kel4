@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jalur Pendakian — Rinjani</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🏔 Rinjani<span>.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Beranda</a>
+      <a href="destinasi.html">Destinasi</a>
+      <a href="jalur.html" class="active">Jalur Pendakian</a>
+      <a href="simaksi.html" class="nav-cta">Daftar SIMAKSI</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="breadcrumb"><a href="index.html">Beranda</a> › Jalur Pendakian</div>
+  <h1>Jalur Pendakian Resmi</h1>
+  <p>Tiga jalur resmi menuju puncak Rinjani dengan karakteristik unik masing-masing</p>
+</div>
+
+<section class="section" style="padding-top:2.5rem;">
+  <div class="container" id="jalur-container"></div>
+</section>
+
+<!-- Kuota Realtime Section -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-header">
+      <div class="section-tag">Cek Ketersediaan</div>
+      <h2>Kuota Pendakian</h2>
+      <p>Cek ketersediaan kuota untuk tanggal yang Anda inginkan</p>
+    </div>
+    <div class="form-card" style="max-width:560px;margin:0 auto;">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jalur</label>
+          <select id="cek-jalur">
+            <option value="">Pilih jalur...</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tanggal Pendakian</label>
+          <input type="date" id="cek-tanggal">
+        </div>
+      </div>
+      <button class="btn btn-green w-full" onclick="cekKuota()">Cek Kuota</button>
+      <div id="kuota-result" style="margin-top:1rem;"></div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div style="max-width:1200px;margin:0 auto;text-align:center;padding:1rem 0;">
+    <p>© 2024 Rinjani Tourism & SIMAKSI — Project Akhir Website Pariwisata</p>
+  </div>
+</footer>
+
+<script src="data/database.js"></script>
+<script>
+  DB.init();
+
+  const container = document.getElementById('jalur-container');
+  const jalurAll = DB.getJalur();
+
+  // Isi dropdown
+  const sel = document.getElementById('cek-jalur');
+  jalurAll.forEach(j => sel.innerHTML += `<option value="${j.id}">${j.nama}</option>`);
+
+  // Set min date = today
+  const todayStr = new Date().toISOString().split('T')[0];
+  document.getElementById('cek-tanggal').min = todayStr;
+  document.getElementById('cek-tanggal').value = todayStr;
+
+  jalurAll.forEach((j, idx) => {
+    const isEven = idx % 2 === 0;
+    const today = new Date().toISOString().split('T')[0];
+    const k = DB.getKuotaByJalurTanggal(j.id, today);
+    const pct = k ? (k.terisi / k.kapasitas) * 100 : 0;
+    const fillClass = pct >= 100 ? 'kuota-full' : pct >= 70 ? 'kuota-warn' : 'kuota-ok';
+
+    container.innerHTML += `
+    <div id="${j.id}" style="display:grid;grid-template-columns:${isEven ? '1fr 1fr' : '1fr 1fr'};gap:3rem;align-items:center;margin-bottom:4rem;padding-bottom:4rem;border-bottom:1px solid var(--border);">
+      ${isEven ? `
+      <img src="${j.gambar}" alt="${j.nama}" style="width:100%;height:340px;object-fit:cover;border-radius:var(--radius);box-shadow:var(--shadow-md);">
+      <div>` : `
+      <div>`}
+        <div class="section-tag">Jalur ${idx + 1}</div>
+        <h2 style="font-family:var(--font-display);font-size:2rem;color:var(--green-deep);margin-bottom:0.75rem;">${j.nama}</h2>
+        <p style="color:var(--text-mid);margin-bottom:1.5rem;">${j.deskripsi}</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+          <div style="background:var(--green-pale);border-radius:8px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.jarak}</div>
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Jarak Total</div>
+          </div>
+          <div style="background:var(--amber-pale);border-radius:8px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--amber-dark);">${j.estimasi}</div>
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Durasi</div>
+          </div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.ketinggian} m</div>
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Titik Awal</div>
+          </div>
+          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+            <span class="badge badge-${j.tingkat.toLowerCase().replace(' ','-')}" style="font-size:0.9rem;padding:6px 14px;">${j.tingkat}</span>
+            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-top:4px;">Tingkat</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.5rem;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.82rem;">
+            <span style="font-weight:600;color:var(--green-deep);">Kuota Hari Ini</span>
+            <span style="color:var(--text-soft);">${k ? k.sisa + '/' + k.kapasitas + ' tersisa' : 'N/A'}</span>
+          </div>
+          <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct,100)}%"></div></div>
+        </div>
+
+        <a href="simaksi.html?jalur=${j.id}" class="btn btn-primary">📋 Daftar via Jalur Ini →</a>
+      </div>
+      ${!isEven ? `</div><img src="${j.gambar}" alt="${j.nama}" style="width:100%;height:340px;object-fit:cover;border-radius:var(--radius);box-shadow:var(--shadow-md);">` : '</div>'}
+    </div>`;
+  });
+
+  function cekKuota() {
+    const jalurId = document.getElementById('cek-jalur').value;
+    const tgl = document.getElementById('cek-tanggal').value;
+    const result = document.getElementById('kuota-result');
+
+    if (!jalurId || !tgl) {
+      result.innerHTML = '<div class="alert alert-error">⚠️ Pilih jalur dan tanggal terlebih dahulu.</div>';
+      return;
+    }
+
+    const k = DB.getKuotaByJalurTanggal(jalurId, tgl);
+    const jalur = DB.getJalurById(jalurId);
+
+    if (!k) {
+      result.innerHTML = '<div class="alert alert-error">Tanggal di luar rentang yang tersedia (maks. 30 hari ke depan).</div>';
+      return;
+    }
+
+    const pct = (k.terisi / k.kapasitas) * 100;
+    const fillClass = pct >= 100 ? 'kuota-full' : pct >= 70 ? 'kuota-warn' : 'kuota-ok';
+    const status = pct >= 100 ? '🔴 Kuota Penuh' : pct >= 70 ? '🟡 Hampir Penuh' : '🟢 Tersedia';
+
+    result.innerHTML = `
+    <div class="alert alert-info" style="flex-direction:column;align-items:stretch;">
+      <div style="font-weight:600;margin-bottom:8px;">${jalur.nama} — ${new Date(tgl+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:0.85rem;">
+        <span>${status}</span>
+        <span><strong>${k.sisa}</strong> dari ${k.kapasitas} kuota tersisa</span>
+      </div>
+      <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct,100)}%"></div></div>
+      ${k.sisa > 0 ? `<a href="simaksi.html?jalur=${jalurId}&tgl=${tgl}" class="btn btn-primary btn-sm" style="margin-top:12px;justify-content:center;">Daftar Sekarang →</a>` : '<div style="margin-top:10px;font-size:0.82rem;color:var(--red);">Kuota penuh untuk tanggal ini. Coba tanggal lain.</div>'}
+    </div>`;
+  }
+
+  if (location.hash) {
+    setTimeout(() => {
+      const el = document.querySelector(location.hash);
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+  }
+</script>
+</body>
+</html>

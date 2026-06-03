@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Pendaftaran — Admin SIMAKSI</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">🏔 Rinjani<span style="color:var(--amber);">.</span><small>Panel Admin SIMAKSI</small></div>
+    <nav class="admin-nav">
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="pendaftaran.html" class="active">📋 Pendaftaran</a>
+      <a href="kuota.html">📅 Kelola Kuota</a>
+      <a href="../index.html" target="_blank">🌐 Lihat Website</a>
+      <a href="#" onclick="doLogout()" style="color:rgba(255,100,100,0.7);">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Kelola Pendaftaran SIMAKSI</h1>
+    </div>
+
+    <!-- Filter & Search -->
+    <div class="table-wrap" style="margin-bottom:1.5rem;">
+      <div style="padding:1rem;display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="search-input" placeholder="Cari nama, nomor SIMAKSI, atau email..." 
+          style="flex:1;min-width:220px;" oninput="renderTable()">
+        <select id="filter-status" onchange="renderTable()">
+          <option value="">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Disetujui</option>
+          <option value="rejected">Ditolak</option>
+        </select>
+        <select id="filter-jalur" onchange="renderTable()">
+          <option value="">Semua Jalur</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabel -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>Daftar Pendaftaran</h3>
+        <span id="count-label" style="font-size:0.85rem;color:var(--text-soft);"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead><tr>
+            <th>No. SIMAKSI</th>
+            <th>Ketua Kelompok</th>
+            <th>Jalur</th>
+            <th>Tgl Naik</th>
+            <th>Jml</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr></thead>
+          <tbody id="tbl-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Detail -->
+<div class="modal-overlay" id="modal-detail" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" id="modal-body" style="max-width:600px;"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../data/database.js"></script>
+<script>
+  DB.init();
+  if (!DB.getSession()) location.href = 'login.html';
+
+  // Isi filter jalur
+  const jalurSel = document.getElementById('filter-jalur');
+  DB.getJalur().forEach(j => jalurSel.innerHTML += `<option value="${j.id}">${j.nama}</option>`);
+
+  function renderTable() {
+    const q = document.getElementById('search-input').value.toLowerCase();
+    const st = document.getElementById('filter-status').value;
+    const jl = document.getElementById('filter-jalur').value;
+
+    let data = DB.getPendaftaran();
+    if (q) data = data.filter(p => p.id.toLowerCase().includes(q) || p.ketua.toLowerCase().includes(q) || p.email.toLowerCase().includes(q));
+    if (st) data = data.filter(p => p.status === st);
+    if (jl) data = data.filter(p => p.jalurId === jl);
+    data.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    document.getElementById('count-label').textContent = `${data.length} pendaftaran`;
+
+    const tbody = document.getElementById('tbl-body');
+    if (data.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-soft);">Tidak ada data pendaftaran.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = data.map(p => {
+      const sc = p.status==='approved'?'badge-approved':p.status==='rejected'?'badge-rejected':'badge-pending';
+      const st = p.status==='approved'?'Disetujui':p.status==='rejected'?'Ditolak':'Pending';
+      const tgl = new Date(p.tglNaik+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+      return `<tr>
+        <td style="font-family:monospace;font-size:0.78rem;">${p.id}</td>
+        <td>
+          <div style="font-weight:600;">${p.ketua}</div>
+          <div style="font-size:0.75rem;color:var(--text-soft);">${p.email}</div>
+        </td>
+        <td style="font-size:0.85rem;">${p.jalurNama}</td>
+        <td style="font-size:0.85rem;">${tgl}</td>
+        <td style="text-align:center;font-weight:600;">${p.jumlah}</td>
+        <td><span class="badge ${sc}">${st}</span></td>
+        <td>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-sm" style="padding:6px 10px;color:var(--green-mid);border-color:var(--green-mid);" onclick="openDetail('${p.id}')">Detail</button>
+            ${p.status==='pending' ? `
+            <button class="btn btn-sm" style="padding:6px 10px;background:var(--green-mid);color:#fff;border:none;" onclick="approve('${p.id}')">✓</button>
+            <button class="btn btn-sm" style="padding:6px 10px;background:var(--red);color:#fff;border:none;" onclick="reject('${p.id}')">✕</button>
+            ` : ''}
+            <button class="btn btn-sm" style="padding:6px 10px;color:var(--red);border-color:var(--red);" onclick="hapus('${p.id}')">🗑</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  function approve(id) {
+    if (!confirm('Setujui pendaftaran ini?')) return;
+    DB.updateStatusPendaftaran(id, 'approved');
+    showToast('Pendaftaran disetujui!', 'success');
+    renderTable();
+  }
+
+  function reject(id) {
+    if (!confirm('Tolak pendaftaran ini?')) return;
+    DB.updateStatusPendaftaran(id, 'rejected');
+    showToast('Pendaftaran ditolak.', 'error');
+    renderTable();
+  }
+
+  function hapus(id) {
+    if (!confirm('Hapus pendaftaran ini? Tindakan tidak dapat diurungkan.')) return;
+    DB.hapusPendaftaran(id);
+    showToast('Pendaftaran dihapus.');
+    renderTable();
+  }
+
+  function openDetail(id) {
+    const p = DB.getPendaftaran().find(x => x.id === id);
+    if (!p) return;
+    const fmt = d => new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const sc = p.status==='approved'?'badge-approved':p.status==='rejected'?'badge-rejected':'badge-pending';
+    const st = p.status==='approved'?'✅ Disetujui':p.status==='rejected'?'❌ Ditolak':'⏳ Menunggu Verifikasi';
+
+    document.getElementById('modal-body').innerHTML = `
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
+        <h3 style="margin:0;">${p.id}</h3>
+        <span class="badge ${sc}">${st}</span>
+      </div>
+      <div style="display:grid;gap:1rem;">
+        <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:8px;">Info Pendakian</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.875rem;">
+            <div><span style="color:var(--text-soft);">Jalur</span><br><strong>${p.jalurNama}</strong></div>
+            <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${p.jumlah} orang</strong></div>
+            <div><span style="color:var(--text-soft);">Tgl Naik</span><br><strong>${fmt(p.tglNaik)}</strong></div>
+            <div><span style="color:var(--text-soft);">Tgl Turun</span><br><strong>${fmt(p.tglTurun)}</strong></div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:8px;">Ketua Kelompok</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.875rem;">
+            <div><span style="color:var(--text-soft);">Nama</span><br><strong>${p.ketua}</strong></div>
+            <div><span style="color:var(--text-soft);">WhatsApp</span><br><strong>${p.phone}</strong></div>
+            <div style="grid-column:1/-1;"><span style="color:var(--text-soft);">Email</span><br><strong>${p.email}</strong></div>
+          </div>
+        </div>
+        <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+          <div style="font-size:0.72px;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:8px;">Daftar Anggota (${p.anggota.length} orang)</div>
+          <table style="width:100%;font-size:0.82rem;border-collapse:collapse;">
+            <thead><tr>
+              <th style="text-align:left;padding:6px;background:var(--green-pale);color:var(--green-deep);">#</th>
+              <th style="text-align:left;padding:6px;background:var(--green-pale);color:var(--green-deep);">Nama</th>
+              <th style="text-align:left;padding:6px;background:var(--green-pale);color:var(--green-deep);">KTP</th>
+              <th style="text-align:left;padding:6px;background:var(--green-pale);color:var(--green-deep);">Usia</th>
+              <th style="text-align:left;padding:6px;background:var(--green-pale);color:var(--green-deep);">Asal</th>
+            </tr></thead>
+            <tbody>${p.anggota.map((a,i)=>`
+              <tr style="border-bottom:1px solid var(--border);">
+                <td style="padding:6px;color:var(--text-soft);">${i+1}</td>
+                <td style="padding:6px;"><strong>${a.nama}</strong>${i===0?' <span style="font-size:0.7rem;color:var(--amber-dark);">(Ketua)</span>':''}</td>
+                <td style="padding:6px;font-family:monospace;font-size:0.8rem;">${a.ktp||'—'}</td>
+                <td style="padding:6px;">${a.usia||'—'}</td>
+                <td style="padding:6px;">${a.asal||'—'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      ${p.status==='pending' ? `
+      <div style="display:flex;gap:8px;margin-top:1.25rem;">
+        <button class="btn btn-green" style="flex:1;" onclick="approve('${p.id}');closeDetail()">✅ Setujui</button>
+        <button class="btn btn-sm" style="flex:1;background:var(--red);color:#fff;border:none;" onclick="reject('${p.id}');closeDetail()">❌ Tolak</button>
+      </div>` : ''}
+      <div style="margin-top:8px;font-size:0.75rem;color:var(--text-soft);text-align:center;">
+        Didaftarkan: ${new Date(p.createdAt).toLocaleString('id-ID')}
+      </div>`;
+
+    document.getElementById('modal-detail').classList.add('open');
+  }
+
+  function closeDetail() {
+    document.getElementById('modal-detail').classList.remove('open');
+  }
+
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' '+type : '');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function doLogout() {
+    if (confirm('Yakin logout?')) { DB.logout(); location.href = 'login.html'; }
+  }
+
+  renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Kuota — Admin SIMAKSI</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+
+<div class="admin-layout">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-logo">🏔 Rinjani<span style="color:var(--amber);">.</span><small>Panel Admin SIMAKSI</small></div>
+    <nav class="admin-nav">
+      <a href="dashboard.html">📊 Dashboard</a>
+      <a href="pendaftaran.html">📋 Pendaftaran</a>
+      <a href="kuota.html" class="active">📅 Kelola Kuota</a>
+      <a href="../index.html" target="_blank">🌐 Lihat Website</a>
+      <a href="#" onclick="doLogout()" style="color:rgba(255,100,100,0.7);">🚪 Logout</a>
+    </nav>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-header">
+      <h1>Kelola Kuota Pendakian</h1>
+    </div>
+
+    <!-- Filter -->
+    <div style="display:flex;gap:12px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:flex-end;">
+      <div>
+        <label style="font-size:0.82rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px;">Jalur</label>
+        <select id="sel-jalur" onchange="renderKuota()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);background:var(--white);">
+        </select>
+      </div>
+      <div>
+        <label style="font-size:0.82rem;font-weight:600;color:var(--text-mid);display:block;margin-bottom:4px;">Tampilkan</label>
+        <select id="sel-range" onchange="renderKuota()" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--font-body);background:var(--white);">
+          <option value="7">7 hari ke depan</option>
+          <option value="14" selected>14 hari ke depan</option>
+          <option value="30">30 hari ke depan</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Tabel Kuota -->
+    <div class="table-wrap" style="margin-bottom:1.5rem;">
+      <div class="table-header">
+        <h3 id="tbl-title">Kuota Jalur</h3>
+        <button class="btn btn-green btn-sm" onclick="openEditKapasitas()">✏️ Edit Kapasitas Default</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="data-table">
+          <thead><tr>
+            <th>Tanggal</th><th>Hari</th><th>Kapasitas</th><th>Terisi</th><th>Sisa</th><th>Utilisasi</th><th>Aksi</th>
+          </tr></thead>
+          <tbody id="kuota-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Info box -->
+    <div class="alert alert-info">
+      💡 Perubahan kuota pada tabel di atas akan langsung berpengaruh pada form pendaftaran publik. 
+      Kuota yang sudah terisi tidak bisa dikurangi di bawah jumlah terisi.
+    </div>
+  </main>
+</div>
+
+<!-- Modal Edit Kuota -->
+<div class="modal-overlay" id="modal-edit" onclick="if(event.target===this)closeEdit()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeEdit()">✕</button>
+    <h3>Edit Kuota Tanggal</h3>
+    <div id="edit-info" style="font-size:0.9rem;color:var(--text-mid);margin-bottom:1rem;"></div>
+    <div class="form-group">
+      <label>Kapasitas Baru</label>
+      <input type="number" id="new-kapasitas" min="1" max="100">
+      <div class="form-hint" id="min-hint"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-green" style="flex:1;" onclick="saveKuota()">Simpan</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--text-mid);" onclick="closeEdit()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Edit Kapasitas -->
+<div class="modal-overlay" id="modal-kapasitas" onclick="if(event.target===this)closeKapasitas()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeKapasitas()">✕</button>
+    <h3>Edit Kapasitas Default</h3>
+    <p style="font-size:0.875rem;color:var(--text-mid);margin-bottom:1rem;">Perubahan ini akan mereset kuota semua tanggal yang belum ada pendaftarannya.</p>
+    <div id="kapasitas-fields"></div>
+    <div style="display:flex;gap:8px;margin-top:1rem;">
+      <button class="btn btn-green" style="flex:1;" onclick="saveKapasitas()">Simpan</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--text-mid);" onclick="closeKapasitas()">Batal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../data/database.js"></script>
+<script>
+  DB.init();
+  if (!DB.getSession()) location.href = 'login.html';
+
+  const jalurAll = DB.getJalur();
+  const sel = document.getElementById('sel-jalur');
+  jalurAll.forEach(j => sel.innerHTML += `<option value="${j.id}">${j.nama}</option>`);
+
+  let editTarget = null;
+
+  function renderKuota() {
+    const jalurId = sel.value;
+    const range = parseInt(document.getElementById('sel-range').value);
+    const jalur = jalurAll.find(j => j.id === jalurId);
+    document.getElementById('tbl-title').textContent = `Kuota ${jalur.nama}`;
+
+    const today = new Date();
+    const tbody = document.getElementById('kuota-tbody');
+    tbody.innerHTML = '';
+
+    for (let i = 0; i < range; i++) {
+      const tgl = new Date(today);
+      tgl.setDate(today.getDate() + i);
+      const tglStr = tgl.toISOString().split('T')[0];
+      const k = DB.getKuotaByJalurTanggal(jalurId, tglStr);
+      if (!k) continue;
+
+      const pct = Math.round((k.terisi / k.kapasitas) * 100);
+      const fc = pct >= 100 ? 'kuota-full' : pct >= 70 ? 'kuota-warn' : 'kuota-ok';
+      const bclass = pct >= 100 ? 'kuota-full-badge' : pct >= 70 ? 'kuota-warn-badge' : 'kuota-ok-badge';
+      const btext = pct >= 100 ? 'Penuh' : pct >= 70 ? 'Hampir' : 'OK';
+      const isToday = i === 0;
+      const hari = tgl.toLocaleDateString('id-ID', {weekday:'long'});
+      const tglFmt = tgl.toLocaleDateString('id-ID', {day:'numeric', month:'short', year:'numeric'});
+
+      tbody.innerHTML += `<tr ${isToday ? 'style="background:#f0f7f2;"':''}>
+        <td><strong>${tglFmt}</strong>${isToday?' <span style="font-size:0.7rem;background:var(--green-mid);color:#fff;padding:2px 6px;border-radius:4px;">Hari ini</span>':''}</td>
+        <td style="color:var(--text-soft);">${hari}</td>
+        <td>${k.kapasitas}</td>
+        <td>${k.terisi}</td>
+        <td><strong ${pct>=100?'style="color:var(--red);"':''}>${k.sisa}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="flex:1;min-width:80px;">
+              <div class="kuota-bar"><div class="kuota-fill ${fc}" style="width:${Math.min(pct,100)}%"></div></div>
+            </div>
+            <span class="kuota-badge ${bclass}">${pct}% ${btext}</span>
+          </div>
+        </td>
+        <td>
+          <button class="btn btn-sm" style="padding:5px 10px;color:var(--green-mid);border-color:var(--green-mid);" 
+            onclick="openEdit('${jalurId}','${tglStr}',${k.kapasitas},${k.terisi})">Edit</button>
+        </td>
+      </tr>`;
+    }
+  }
+
+  function openEdit(jalurId, tglStr, kapasitas, terisi) {
+    editTarget = { jalurId, tglStr, terisi };
+    const tglFmt = new Date(tglStr+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const jalur = jalurAll.find(j => j.id === jalurId);
+    document.getElementById('edit-info').innerHTML = `<strong>${jalur.nama}</strong> — ${tglFmt}<br>Terisi saat ini: ${terisi} orang`;
+    document.getElementById('new-kapasitas').value = kapasitas;
+    document.getElementById('new-kapasitas').min = terisi;
+    document.getElementById('min-hint').textContent = `Minimal ${terisi} (sudah terisi). Maksimal 100.`;
+    document.getElementById('modal-edit').classList.add('open');
+  }
+
+  function closeEdit() { document.getElementById('modal-edit').classList.remove('open'); }
+
+  function saveKuota() {
+    const newKap = parseInt(document.getElementById('new-kapasitas').value);
+    if (!editTarget || isNaN(newKap) || newKap < editTarget.terisi) {
+      alert('Kapasitas tidak valid.'); return;
+    }
+    const kuota = DB.getKuota();
+    kuota[editTarget.jalurId][editTarget.tglStr].kapasitas = newKap;
+    kuota[editTarget.jalurId][editTarget.tglStr].sisa = newKap - editTarget.terisi;
+    localStorage.setItem('db_kuota', JSON.stringify(kuota));
+    showToast('Kuota berhasil diperbarui!', 'success');
+    closeEdit();
+    renderKuota();
+  }
+
+  function openEditKapasitas() {
+    const fields = document.getElementById('kapasitas-fields');
+    fields.innerHTML = jalurAll.map(j => `
+      <div class="form-group">
+        <label>${j.nama}</label>
+        <input type="number" id="kap-${j.id}" value="${j.kuota_harian}" min="1" max="200">
+      </div>`).join('');
+    document.getElementById('modal-kapasitas').classList.add('open');
+  }
+
+  function closeKapasitas() { document.getElementById('modal-kapasitas').classList.remove('open'); }
+
+  function saveKapasitas() {
+    const jalurDB = DB.getJalur();
+    jalurAll.forEach(j => {
+      const newKap = parseInt(document.getElementById(`kap-${j.id}`).value);
+      if (isNaN(newKap) || newKap < 1) return;
+      const idx = jalurDB.findIndex(x => x.id === j.id);
+      if (idx !== -1) jalurDB[idx].kuota_harian = newKap;
+
+      // Update semua tanggal yang sisa > 0 (belum penuh)
+      const kuota = DB.getKuota();
+      if (kuota[j.id]) {
+        Object.keys(kuota[j.id]).forEach(tgl => {
+          if (kuota[j.id][tgl].terisi === 0) {
+            kuota[j.id][tgl].kapasitas = newKap;
+            kuota[j.id][tgl].sisa = newKap;
+          }
+        });
+        localStorage.setItem('db_kuota', JSON.stringify(kuota));
+      }
+    });
+    localStorage.setItem('db_jalur', JSON.stringify(jalurDB));
+    showToast('Kapasitas default diperbarui!', 'success');
+    closeKapasitas();
+    renderKuota();
+  }
+
+  function showToast(msg, type='') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (type ? ' '+type : '');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function doLogout() {
+    if (confirm('Yakin logout?')) { DB.logout(); location.href = 'login.html'; }
+  }
+
+  renderKuota();
+</script>
+</body>
+</html>
