@@ -1,373 +1,589 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pendaftaran SIMAKSI — Rinjani</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pendaftaran SIMAKSI — Rinjani</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">🏔 Rinjani<span>.</span></a>
+        <div class="nav-links">
+          <a href="index.html">Beranda</a>
+          <a href="destinasi.html">Destinasi</a>
+          <a href="jalur.html">Jalur Pendakian</a>
+          <a href="simaksi.html" class="nav-cta active">Daftar SIMAKSI</a>
+        </div>
+      </div>
+    </nav>
 
-<nav class="nav">
-  <div class="nav-inner">
-    <a href="index.html" class="nav-logo">🏔 Rinjani<span>.</span></a>
-    <div class="nav-links">
-      <a href="index.html">Beranda</a>
-      <a href="destinasi.html">Destinasi</a>
-      <a href="jalur.html">Jalur Pendakian</a>
-      <a href="simaksi.html" class="nav-cta active">Daftar SIMAKSI</a>
-    </div>
-  </div>
-</nav>
-
-<div class="page-header">
-  <div class="breadcrumb"><a href="index.html">Beranda</a> › SIMAKSI</div>
-  <h1>Pendaftaran SIMAKSI</h1>
-  <p>Surat Izin Masuk Kawasan Konservasi Taman Nasional Gunung Rinjani</p>
-</div>
-
-<section class="section" style="padding-top:2.5rem;">
-  <div class="container" style="max-width:760px;">
-
-    <!-- Tab: Daftar / Cek Status -->
-    <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:2rem;">
-      <button id="tab-daftar" onclick="switchTab('daftar')"
-        style="flex:1;padding:12px;border:none;background:var(--green-mid);color:#fff;font-family:var(--font-body);font-size:0.9rem;font-weight:600;cursor:pointer;">
-        📋 Pendaftaran Baru
-      </button>
-      <button id="tab-cek" onclick="switchTab('cek')"
-        style="flex:1;padding:12px;border:none;background:var(--white);color:var(--text-mid);font-family:var(--font-body);font-size:0.9rem;font-weight:600;cursor:pointer;">
-        🔍 Cek Status
-      </button>
+    <div class="page-header">
+      <div class="breadcrumb"><a href="index.html">Beranda</a> › SIMAKSI</div>
+      <h1>Pendaftaran SIMAKSI</h1>
+      <p>Surat Izin Masuk Kawasan Konservasi Taman Nasional Gunung Rinjani</p>
     </div>
 
-    <!-- FORM PENDAFTARAN -->
-    <div id="panel-daftar">
-      <!-- Langkah indikator -->
-      <div class="steps-indicator">
-        <div class="step-item active" id="step-item-1">
-          <div>
-            <div class="step-circle">1</div>
-            <div class="step-label">Informasi Pendakian</div>
-          </div>
-          <div class="step-line"></div>
+    <section class="section" style="padding-top: 2.5rem">
+      <div class="container" style="max-width: 760px">
+        <!-- Tab: Daftar / Cek Status -->
+        <div
+          style="
+            display: flex;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 2rem;
+          "
+        >
+          <button
+            id="tab-daftar"
+            onclick="switchTab('daftar')"
+            style="
+              flex: 1;
+              padding: 12px;
+              border: none;
+              background: var(--green-mid);
+              color: #fff;
+              font-family: var(--font-body);
+              font-size: 0.9rem;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            📋 Pendaftaran Baru
+          </button>
+          <button
+            id="tab-cek"
+            onclick="switchTab('cek')"
+            style="
+              flex: 1;
+              padding: 12px;
+              border: none;
+              background: var(--white);
+              color: var(--text-mid);
+              font-family: var(--font-body);
+              font-size: 0.9rem;
+              font-weight: 600;
+              cursor: pointer;
+            "
+          >
+            🔍 Cek Status
+          </button>
         </div>
-        <div class="step-item" id="step-item-2">
-          <div>
-            <div class="step-circle">2</div>
-            <div class="step-label">Data Anggota</div>
+
+        <!-- FORM PENDAFTARAN -->
+        <div id="panel-daftar">
+          <!-- Langkah indikator -->
+          <div class="steps-indicator">
+            <div class="step-item active" id="step-item-1">
+              <div class="step-circle">1</div>
+              <div class="step-label">Informasi Pendakian</div>
+            </div>
+            <div class="step-item" id="step-item-2">
+              <div class="step-circle">2</div>
+              <div class="step-label">Data Anggota</div>
+            </div>
+            <div class="step-item" id="step-item-3">
+              <div class="step-circle">3</div>
+              <div class="step-label">Konfirmasi</div>
+            </div>
           </div>
-          <div class="step-line"></div>
+
+          <!-- STEP 1: Info Pendakian -->
+          <div class="form-card" id="step1">
+            <div class="form-title">Informasi Pendakian</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jalur Pendakian <span>*</span></label>
+                <select id="jalur" onchange="updateKuotaInfo()">
+                  <option value="">-- Pilih Jalur --</option>
+                </select>
+                <div class="form-error" id="err-jalur">
+                  Pilih jalur pendakian
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Tanggal Naik <span>*</span></label>
+                <input type="date" id="tgl-naik" onchange="updateKuotaInfo()" />
+                <div class="form-error" id="err-tgl">
+                  Pilih tanggal pendakian
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Tanggal Turun <span>*</span></label>
+              <input type="date" id="tgl-turun" />
+              <div class="form-hint">
+                Pastikan durasi sesuai estimasi jalur yang dipilih
+              </div>
+            </div>
+            <div id="kuota-info" style="margin-bottom: 1.25rem"></div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Jumlah Anggota <span>*</span></label>
+                <select id="jml-anggota" onchange="updateAnggotaCount()">
+                  <option value="1">1 orang</option>
+                  <option value="2">2 orang</option>
+                  <option value="3">3 orang</option>
+                  <option value="4">4 orang</option>
+                  <option value="5">5 orang</option>
+                  <option value="6">6 orang</option>
+                  <option value="7">7 orang</option>
+                  <option value="8">8 orang</option>
+                  <option value="9">9 orang</option>
+                  <option value="10">10 orang</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Nama Ketua Kelompok <span>*</span></label>
+                <input
+                  type="text"
+                  id="ketua"
+                  placeholder="Nama lengkap ketua"
+                />
+                <div class="form-error" id="err-ketua">
+                  Isi nama ketua kelompok
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>No. WhatsApp Ketua <span>*</span></label>
+                <input type="tel" id="phone" placeholder="08xxxxxxxxxx" />
+                <div class="form-error" id="err-phone">Nomor tidak valid</div>
+              </div>
+              <div class="form-group">
+                <label>Email <span>*</span></label>
+                <input type="email" id="email" placeholder="email@contoh.com" />
+                <div class="form-error" id="err-email">Email tidak valid</div>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end">
+              <button class="btn btn-primary" onclick="goStep2()">
+                Lanjut: Data Anggota →
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 2: Data Anggota -->
+          <div class="form-card hidden" id="step2">
+            <div class="form-title">Data Anggota Kelompok</div>
+            <div class="alert alert-info">
+              ℹ️ Isi data seluruh anggota kelompok termasuk ketua. Data
+              KTP/identitas diperlukan untuk keperluan keselamatan.
+            </div>
+            <div style="overflow-x: auto">
+              <table class="anggota-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Nama Lengkap *</th>
+                    <th>No. KTP *</th>
+                    <th>Usia</th>
+                    <th>Asal Daerah</th>
+                  </tr>
+                </thead>
+                <tbody id="anggota-tbody"></tbody>
+              </table>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-top: 1.5rem;
+              "
+            >
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="goStep1()"
+                style="color: var(--text-mid)"
+              >
+                ← Kembali
+              </button>
+              <button class="btn btn-primary" onclick="goStep3()">
+                Lanjut: Konfirmasi →
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: Konfirmasi -->
+          <div class="form-card hidden" id="step3">
+            <div class="form-title">Konfirmasi Pendaftaran</div>
+            <div class="alert alert-info">
+              📋 Periksa kembali data Anda sebelum mengirim. Pendaftaran yang
+              sudah dikirim tidak dapat diubah.
+            </div>
+            <div id="review-content"></div>
+            <div class="divider"></div>
+            <div class="form-group">
+              <label
+                style="
+                  display: flex;
+                  align-items: flex-start;
+                  gap: 8px;
+                  font-weight: 400;
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  id="agree-terms"
+                  style="margin-top: 3px; width: auto"
+                />
+                <span style="font-size: 0.875rem; color: var(--text-mid)">
+                  Saya menyatakan data yang diisi adalah benar dan saya bersedia
+                  mematuhi seluruh peraturan Taman Nasional Gunung Rinjani serta
+                  bertanggung jawab atas keselamatan kelompok.
+                </span>
+              </label>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-top: 1.5rem;
+              "
+            >
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="goStep2()"
+                style="color: var(--text-mid)"
+              >
+                ← Kembali
+              </button>
+              <button class="btn btn-primary" onclick="submitDaftar()">
+                ✅ Kirim Pendaftaran
+              </button>
+            </div>
+          </div>
         </div>
-        <div class="step-item" id="step-item-3">
-          <div>
-            <div class="step-circle">3</div>
-            <div class="step-label">Konfirmasi</div>
+
+        <!-- CEK STATUS -->
+        <div id="panel-cek" class="hidden">
+          <div class="form-card">
+            <div class="form-title">Cek Status SIMAKSI</div>
+            <div class="form-group">
+              <label>Nomor SIMAKSI atau Email Pendaftar</label>
+              <input
+                type="text"
+                id="cek-input"
+                placeholder="Contoh: SIMAKSI-1234567890 atau email@contoh.com"
+              />
+            </div>
+            <button class="btn btn-green w-full" onclick="cekStatus()">
+              Cari
+            </button>
+            <div id="status-result" style="margin-top: 1rem"></div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- STEP 1: Info Pendakian -->
-      <div class="form-card" id="step1">
-        <div class="form-title">Informasi Pendakian</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Jalur Pendakian <span>*</span></label>
-            <select id="jalur" onchange="updateKuotaInfo()">
-              <option value="">-- Pilih Jalur --</option>
-            </select>
-            <div class="form-error" id="err-jalur">Pilih jalur pendakian</div>
+    <!-- Modal Sukses -->
+    <div class="modal-overlay" id="modal-sukses">
+      <div class="modal" style="text-align: center">
+        <div style="font-size: 3rem; margin-bottom: 1rem">🎉</div>
+        <h3 style="margin-bottom: 0.5rem">Pendaftaran Berhasil!</h3>
+        <p
+          style="color: var(--text-mid); margin-bottom: 1rem; font-size: 0.9rem"
+        >
+          Nomor SIMAKSI Anda telah dibuat. Simpan nomor ini untuk pengecekan
+          status.
+        </p>
+        <div
+          id="nomor-simaksi"
+          style="
+            background: var(--green-pale);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+          "
+        >
+          <div
+            style="
+              font-size: 0.75rem;
+              color: var(--text-soft);
+              margin-bottom: 4px;
+            "
+          >
+            Nomor SIMAKSI
           </div>
-          <div class="form-group">
-            <label>Tanggal Naik <span>*</span></label>
-            <input type="date" id="tgl-naik" onchange="updateKuotaInfo()">
-            <div class="form-error" id="err-tgl">Pilih tanggal pendakian</div>
-          </div>
+          <div
+            id="nomor-val"
+            style="
+              font-family: var(--font-display);
+              font-size: 1.3rem;
+              color: var(--green-deep);
+              font-weight: 700;
+            "
+          ></div>
         </div>
-        <div class="form-group">
-          <label>Tanggal Turun <span>*</span></label>
-          <input type="date" id="tgl-turun">
-          <div class="form-hint">Pastikan durasi sesuai estimasi jalur yang dipilih</div>
-        </div>
-        <div id="kuota-info" style="margin-bottom:1.25rem;"></div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Jumlah Anggota <span>*</span></label>
-            <select id="jml-anggota" onchange="updateAnggotaCount()">
-              <option value="1">1 orang</option>
-              <option value="2">2 orang</option>
-              <option value="3">3 orang</option>
-              <option value="4">4 orang</option>
-              <option value="5">5 orang</option>
-              <option value="6">6 orang</option>
-              <option value="7">7 orang</option>
-              <option value="8">8 orang</option>
-              <option value="9">9 orang</option>
-              <option value="10">10 orang</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Nama Ketua Kelompok <span>*</span></label>
-            <input type="text" id="ketua" placeholder="Nama lengkap ketua">
-            <div class="form-error" id="err-ketua">Isi nama ketua kelompok</div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>No. WhatsApp Ketua <span>*</span></label>
-            <input type="tel" id="phone" placeholder="08xxxxxxxxxx">
-            <div class="form-error" id="err-phone">Nomor tidak valid</div>
-          </div>
-          <div class="form-group">
-            <label>Email <span>*</span></label>
-            <input type="email" id="email" placeholder="email@contoh.com">
-            <div class="form-error" id="err-email">Email tidak valid</div>
-          </div>
-        </div>
-        <div style="display:flex;justify-content:flex-end;">
-          <button class="btn btn-primary" onclick="goStep2()">Lanjut: Data Anggota →</button>
-        </div>
-      </div>
-
-      <!-- STEP 2: Data Anggota -->
-      <div class="form-card hidden" id="step2">
-        <div class="form-title">Data Anggota Kelompok</div>
-        <div class="alert alert-info">ℹ️ Isi data seluruh anggota kelompok termasuk ketua. Data KTP/identitas diperlukan untuk keperluan keselamatan.</div>
-        <div style="overflow-x:auto;">
-          <table class="anggota-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Nama Lengkap *</th>
-                <th>No. KTP *</th>
-                <th>Usia</th>
-                <th>Asal Daerah</th>
-              </tr>
-            </thead>
-            <tbody id="anggota-tbody"></tbody>
-          </table>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
-          <button class="btn btn-outline btn-sm" onclick="goStep1()" style="color:var(--text-mid);">← Kembali</button>
-          <button class="btn btn-primary" onclick="goStep3()">Lanjut: Konfirmasi →</button>
-        </div>
-      </div>
-
-      <!-- STEP 3: Konfirmasi -->
-      <div class="form-card hidden" id="step3">
-        <div class="form-title">Konfirmasi Pendaftaran</div>
-        <div class="alert alert-info">📋 Periksa kembali data Anda sebelum mengirim. Pendaftaran yang sudah dikirim tidak dapat diubah.</div>
-        <div id="review-content"></div>
-        <div class="divider"></div>
-        <div class="form-group">
-          <label style="display:flex;align-items:flex-start;gap:8px;font-weight:400;cursor:pointer;">
-            <input type="checkbox" id="agree-terms" style="margin-top:3px;width:auto;">
-            <span style="font-size:0.875rem;color:var(--text-mid);">
-              Saya menyatakan data yang diisi adalah benar dan saya bersedia mematuhi seluruh peraturan Taman Nasional Gunung Rinjani serta bertanggung jawab atas keselamatan kelompok.
-            </span>
-          </label>
-        </div>
-        <div style="display:flex;justify-content:space-between;margin-top:1.5rem;">
-          <button class="btn btn-outline btn-sm" onclick="goStep2()" style="color:var(--text-mid);">← Kembali</button>
-          <button class="btn btn-primary" onclick="submitDaftar()">✅ Kirim Pendaftaran</button>
+        <p
+          style="
+            font-size: 0.82rem;
+            color: var(--text-soft);
+            margin-bottom: 1.5rem;
+          "
+        >
+          Status saat ini:
+          <strong style="color: var(--amber-dark)"
+            >Menunggu Verifikasi Admin</strong
+          >. Anda akan dihubungi via WhatsApp/email setelah diverifikasi.
+        </p>
+        <div style="display: flex; gap: 8px">
+          <button
+            class="btn btn-green"
+            style="flex: 1"
+            onclick="
+              document.getElementById('modal-sukses').classList.remove('open');
+              resetForm();
+            "
+          >
+            Daftar Lagi
+          </button>
+          <button
+            class="btn btn-outline"
+            style="flex: 1; color: var(--text-mid)"
+            onclick="
+              switchTab('cek');
+              document.getElementById('modal-sukses').classList.remove('open');
+            "
+          >
+            Cek Status
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- CEK STATUS -->
-    <div id="panel-cek" class="hidden">
-      <div class="form-card">
-        <div class="form-title">Cek Status SIMAKSI</div>
-        <div class="form-group">
-          <label>Nomor SIMAKSI atau Email Pendaftar</label>
-          <input type="text" id="cek-input" placeholder="Contoh: SIMAKSI-1234567890 atau email@contoh.com">
-        </div>
-        <button class="btn btn-green w-full" onclick="cekStatus()">Cari</button>
-        <div id="status-result" style="margin-top:1rem;"></div>
+    <footer class="footer">
+      <div
+        style="
+          max-width: 1200px;
+          margin: 0 auto;
+          text-align: center;
+          padding: 1rem 0;
+        "
+      >
+        <p>
+          © 2024 Rinjani Tourism & SIMAKSI — Project Akhir Website Pariwisata
+        </p>
       </div>
-    </div>
+    </footer>
 
-  </div>
-</section>
+    <script src="data/database.js"></script>
+    <script>
+      DB.init();
+      let currentStep = 1;
+      let formData = {};
 
-<!-- Modal Sukses -->
-<div class="modal-overlay" id="modal-sukses">
-  <div class="modal" style="text-align:center;">
-    <div style="font-size:3rem;margin-bottom:1rem;">🎉</div>
-    <h3 style="margin-bottom:0.5rem;">Pendaftaran Berhasil!</h3>
-    <p style="color:var(--text-mid);margin-bottom:1rem;font-size:0.9rem;">Nomor SIMAKSI Anda telah dibuat. Simpan nomor ini untuk pengecekan status.</p>
-    <div id="nomor-simaksi" style="background:var(--green-pale);border-radius:8px;padding:1rem;margin-bottom:1.5rem;">
-      <div style="font-size:0.75rem;color:var(--text-soft);margin-bottom:4px;">Nomor SIMAKSI</div>
-      <div id="nomor-val" style="font-family:var(--font-display);font-size:1.3rem;color:var(--green-deep);font-weight:700;"></div>
-    </div>
-    <p style="font-size:0.82rem;color:var(--text-soft);margin-bottom:1.5rem;">Status saat ini: <strong style="color:var(--amber-dark);">Menunggu Verifikasi Admin</strong>. Anda akan dihubungi via WhatsApp/email setelah diverifikasi.</p>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-green" style="flex:1;" onclick="document.getElementById('modal-sukses').classList.remove('open');resetForm();">Daftar Lagi</button>
-      <button class="btn btn-outline" style="flex:1;color:var(--text-mid);" onclick="switchTab('cek');document.getElementById('modal-sukses').classList.remove('open')">Cek Status</button>
-    </div>
-  </div>
-</div>
+      // Init jalur dropdown
+      const jalurSel = document.getElementById("jalur");
+      DB.getJalur().forEach(
+        (j) =>
+          (jalurSel.innerHTML += `<option value="${j.id}">${j.nama} (Kuota: ${j.kuota_harian}/hari)</option>`),
+      );
 
-<footer class="footer">
-  <div style="max-width:1200px;margin:0 auto;text-align:center;padding:1rem 0;">
-    <p>© 2024 Rinjani Tourism & SIMAKSI — Project Akhir Website Pariwisata</p>
-  </div>
-</footer>
+      // Set min date
+      const todayStr = new Date().toISOString().split("T")[0];
+      document.getElementById("tgl-naik").min = todayStr;
+      document.getElementById("tgl-turun").min = todayStr;
 
-<script src="data/database.js"></script>
-<script>
-  DB.init();
-  let currentStep = 1;
-  let formData = {};
+      // Pre-fill dari URL params
+      const params = new URLSearchParams(location.search);
+      if (params.get("jalur")) jalurSel.value = params.get("jalur");
+      if (params.get("tgl"))
+        document.getElementById("tgl-naik").value = params.get("tgl");
+      if (params.get("jalur") || params.get("tgl")) updateKuotaInfo();
 
-  // Init jalur dropdown
-  const jalurSel = document.getElementById('jalur');
-  DB.getJalur().forEach(j => jalurSel.innerHTML += `<option value="${j.id}">${j.nama} (Kuota: ${j.kuota_harian}/hari)</option>`);
+      function switchTab(tab) {
+        const isDaftar = tab === "daftar";
+        document
+          .getElementById("panel-daftar")
+          .classList.toggle("hidden", !isDaftar);
+        document
+          .getElementById("panel-cek")
+          .classList.toggle("hidden", isDaftar);
+        document.getElementById("tab-daftar").style.background = isDaftar
+          ? "var(--green-mid)"
+          : "var(--white)";
+        document.getElementById("tab-daftar").style.color = isDaftar
+          ? "#fff"
+          : "var(--text-mid)";
+        document.getElementById("tab-cek").style.background = !isDaftar
+          ? "var(--green-mid)"
+          : "var(--white)";
+        document.getElementById("tab-cek").style.color = !isDaftar
+          ? "#fff"
+          : "var(--text-mid)";
+      }
 
-  // Set min date
-  const todayStr = new Date().toISOString().split('T')[0];
-  document.getElementById('tgl-naik').min = todayStr;
-  document.getElementById('tgl-turun').min = todayStr;
-
-  // Pre-fill dari URL params
-  const params = new URLSearchParams(location.search);
-  if (params.get('jalur')) jalurSel.value = params.get('jalur');
-  if (params.get('tgl')) document.getElementById('tgl-naik').value = params.get('tgl');
-  if (params.get('jalur') || params.get('tgl')) updateKuotaInfo();
-
-  function switchTab(tab) {
-    const isDaftar = tab === 'daftar';
-    document.getElementById('panel-daftar').classList.toggle('hidden', !isDaftar);
-    document.getElementById('panel-cek').classList.toggle('hidden', isDaftar);
-    document.getElementById('tab-daftar').style.background = isDaftar ? 'var(--green-mid)' : 'var(--white)';
-    document.getElementById('tab-daftar').style.color = isDaftar ? '#fff' : 'var(--text-mid)';
-    document.getElementById('tab-cek').style.background = !isDaftar ? 'var(--green-mid)' : 'var(--white)';
-    document.getElementById('tab-cek').style.color = !isDaftar ? '#fff' : 'var(--text-mid)';
-  }
-
-  function updateKuotaInfo() {
-    const jalurId = document.getElementById('jalur').value;
-    const tgl = document.getElementById('tgl-naik').value;
-    const el = document.getElementById('kuota-info');
-    if (!jalurId || !tgl) { el.innerHTML = ''; return; }
-    const k = DB.getKuotaByJalurTanggal(jalurId, tgl);
-    if (!k) { el.innerHTML = '<div class="alert alert-error">Tanggal di luar rentang tersedia.</div>'; return; }
-    const pct = (k.terisi / k.kapasitas) * 100;
-    const fillClass = pct >= 100 ? 'kuota-full' : pct >= 70 ? 'kuota-warn' : 'kuota-ok';
-    const status = pct >= 100 ? '🔴 Penuh' : pct >= 70 ? '🟡 Hampir penuh' : '🟢 Tersedia';
-    el.innerHTML = `
+      function updateKuotaInfo() {
+        const jalurId = document.getElementById("jalur").value;
+        const tgl = document.getElementById("tgl-naik").value;
+        const el = document.getElementById("kuota-info");
+        if (!jalurId || !tgl) {
+          el.innerHTML = "";
+          return;
+        }
+        const k = DB.getKuotaByJalurTanggal(jalurId, tgl);
+        if (!k) {
+          el.innerHTML =
+            '<div class="alert alert-error">Tanggal di luar rentang tersedia.</div>';
+          return;
+        }
+        const pct = (k.terisi / k.kapasitas) * 100;
+        const fillClass =
+          pct >= 100 ? "kuota-full" : pct >= 70 ? "kuota-warn" : "kuota-ok";
+        const status =
+          pct >= 100
+            ? "🔴 Penuh"
+            : pct >= 70
+              ? "🟡 Hampir penuh"
+              : "🟢 Tersedia";
+        el.innerHTML = `
     <div style="background:var(--green-pale);border-radius:8px;padding:12px;">
       <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
         <span style="font-weight:600;color:var(--green-deep);">Ketersediaan Kuota ${status}</span>
         <span style="color:var(--text-soft);">${k.sisa} dari ${k.kapasitas} tersisa</span>
       </div>
-      <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct,100)}%"></div></div>
-      ${pct >= 100 ? '<div style="font-size:0.8rem;color:var(--red);margin-top:6px;">⚠️ Kuota penuh untuk tanggal ini.</div>' : ''}
+      <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct, 100)}%"></div></div>
+      ${pct >= 100 ? '<div style="font-size:0.8rem;color:var(--red);margin-top:6px;">⚠️ Kuota penuh untuk tanggal ini.</div>' : ""}
     </div>`;
 
-    // Auto set tanggal turun berdasarkan estimasi jalur
-    const jalur = DB.getJalurById(jalurId);
-    if (jalur && tgl) {
-      const durasi = jalur.estimasi.includes('3 hari') ? 2 : 1;
-      const tglTurun = new Date(tgl);
-      tglTurun.setDate(tglTurun.getDate() + durasi);
-      document.getElementById('tgl-turun').value = tglTurun.toISOString().split('T')[0];
-    }
-  }
+        // Auto set tanggal turun berdasarkan estimasi jalur
+        const jalur = DB.getJalurById(jalurId);
+        if (jalur && tgl) {
+          const durasi = jalur.estimasi.includes("3 hari") ? 2 : 1;
+          const tglTurun = new Date(tgl);
+          tglTurun.setDate(tglTurun.getDate() + durasi);
+          document.getElementById("tgl-turun").value = tglTurun
+            .toISOString()
+            .split("T")[0];
+        }
+      }
 
-  function updateAnggotaCount() {
-    const n = parseInt(document.getElementById('jml-anggota').value);
-    const tbody = document.getElementById('anggota-tbody');
-    const ketua = document.getElementById('ketua').value;
-    tbody.innerHTML = '';
-    for (let i = 0; i < n; i++) {
-      tbody.innerHTML += `
+      function updateAnggotaCount() {
+        const n = parseInt(document.getElementById("jml-anggota").value);
+        const tbody = document.getElementById("anggota-tbody");
+        const ketua = document.getElementById("ketua").value;
+        tbody.innerHTML = "";
+        for (let i = 0; i < n; i++) {
+          tbody.innerHTML += `
       <tr>
-        <td style="font-weight:600;color:var(--text-soft);">${i+1}${i===0?' <span style="color:var(--amber-dark);font-size:0.7rem;">(Ketua)</span>':''}</td>
-        <td><input type="text" class="anggota-nama" value="${i===0 ? ketua : ''}" placeholder="Nama lengkap" required></td>
+        <td style="font-weight:600;color:var(--text-soft);">${i + 1}${i === 0 ? ' <span style="color:var(--amber-dark);font-size:0.7rem;">(Ketua)</span>' : ""}</td>
+        <td><input type="text" class="anggota-nama" value="${i === 0 ? ketua : ""}" placeholder="Nama lengkap" required></td>
         <td><input type="text" class="anggota-ktp" placeholder="16 digit NIK" maxlength="16"></td>
         <td><input type="number" class="anggota-usia" placeholder="Usia" min="17" max="70" style="width:70px;"></td>
         <td><input type="text" class="anggota-asal" placeholder="Kota/Kabupaten"></td>
       </tr>`;
-    }
-  }
-
-  function showError(id, show) {
-    document.getElementById(id).style.display = show ? 'block' : 'none';
-  }
-
-  function goStep1() {
-    setStep(1);
-  }
-
-  function goStep2() {
-    // Validasi step 1
-    let valid = true;
-    if (!document.getElementById('jalur').value) { showError('err-jalur', true); valid = false; } else showError('err-jalur', false);
-    if (!document.getElementById('tgl-naik').value) { showError('err-tgl', true); valid = false; } else showError('err-tgl', false);
-    if (!document.getElementById('ketua').value.trim()) { showError('err-ketua', true); valid = false; } else showError('err-ketua', false);
-    const phone = document.getElementById('phone').value;
-    if (!phone.match(/^08[0-9]{8,11}$/)) { showError('err-phone', true); valid = false; } else showError('err-phone', false);
-    const email = document.getElementById('email').value;
-    if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) { showError('err-email', true); valid = false; } else showError('err-email', false);
-    if (!valid) return;
-
-    // Cek kuota
-    const jalurId = document.getElementById('jalur').value;
-    const tgl = document.getElementById('tgl-naik').value;
-    const k = DB.getKuotaByJalurTanggal(jalurId, tgl);
-    const jml = parseInt(document.getElementById('jml-anggota').value);
-    if (!k || k.sisa < jml) {
-      alert('Kuota tidak mencukupi untuk tanggal ini. Silakan pilih tanggal atau jalur lain.');
-      return;
-    }
-
-    updateAnggotaCount();
-    setStep(2);
-  }
-
-  function goStep3() {
-    // Validasi anggota
-    const namaInputs = document.querySelectorAll('.anggota-nama');
-    let valid = true;
-    namaInputs.forEach((inp, i) => {
-      if (!inp.value.trim()) {
-        inp.style.borderColor = 'var(--red)';
-        valid = false;
-      } else {
-        inp.style.borderColor = '';
+        }
       }
-    });
-    if (!valid) { alert('Isi nama untuk semua anggota kelompok.'); return; }
 
-    // Kumpulkan data anggota
-    const anggota = [];
-    const baris = document.querySelectorAll('#anggota-tbody tr');
-    baris.forEach((tr, i) => {
-      anggota.push({
-        nama: tr.querySelector('.anggota-nama').value,
-        ktp: tr.querySelector('.anggota-ktp').value,
-        usia: tr.querySelector('.anggota-usia').value,
-        asal: tr.querySelector('.anggota-asal').value
-      });
-    });
+      function showError(id, show) {
+        document.getElementById(id).style.display = show ? "block" : "none";
+      }
 
-    const jalur = DB.getJalurById(document.getElementById('jalur').value);
-    formData = {
-      jalurId: jalur.id,
-      jalurNama: jalur.nama,
-      tglNaik: document.getElementById('tgl-naik').value,
-      tglTurun: document.getElementById('tgl-turun').value,
-      ketua: document.getElementById('ketua').value,
-      phone: document.getElementById('phone').value,
-      email: document.getElementById('email').value,
-      jumlah: parseInt(document.getElementById('jml-anggota').value),
-      anggota
-    };
+      function goStep1() {
+        setStep(1);
+      }
 
-    // Render review
-    const fmt = d => new Date(d+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    document.getElementById('review-content').innerHTML = `
+      function goStep2() {
+        // Validasi step 1
+        let valid = true;
+        if (!document.getElementById("jalur").value) {
+          showError("err-jalur", true);
+          valid = false;
+        } else showError("err-jalur", false);
+        if (!document.getElementById("tgl-naik").value) {
+          showError("err-tgl", true);
+          valid = false;
+        } else showError("err-tgl", false);
+        if (!document.getElementById("ketua").value.trim()) {
+          showError("err-ketua", true);
+          valid = false;
+        } else showError("err-ketua", false);
+        const phone = document.getElementById("phone").value;
+        if (!phone.match(/^08[0-9]{8,11}$/)) {
+          showError("err-phone", true);
+          valid = false;
+        } else showError("err-phone", false);
+        const email = document.getElementById("email").value;
+        if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+          showError("err-email", true);
+          valid = false;
+        } else showError("err-email", false);
+        if (!valid) return;
+
+        // Cek kuota
+        const jalurId = document.getElementById("jalur").value;
+        const tgl = document.getElementById("tgl-naik").value;
+        const k = DB.getKuotaByJalurTanggal(jalurId, tgl);
+        const jml = parseInt(document.getElementById("jml-anggota").value);
+        if (!k || k.sisa < jml) {
+          alert(
+            "Kuota tidak mencukupi untuk tanggal ini. Silakan pilih tanggal atau jalur lain.",
+          );
+          return;
+        }
+
+        updateAnggotaCount();
+        setStep(2);
+      }
+
+      function goStep3() {
+        // Validasi anggota
+        const namaInputs = document.querySelectorAll(".anggota-nama");
+        let valid = true;
+        namaInputs.forEach((inp, i) => {
+          if (!inp.value.trim()) {
+            inp.style.borderColor = "var(--red)";
+            valid = false;
+          } else {
+            inp.style.borderColor = "";
+          }
+        });
+        if (!valid) {
+          alert("Isi nama untuk semua anggota kelompok.");
+          return;
+        }
+
+        // Kumpulkan data anggota
+        const anggota = [];
+        const baris = document.querySelectorAll("#anggota-tbody tr");
+        baris.forEach((tr, i) => {
+          anggota.push({
+            nama: tr.querySelector(".anggota-nama").value,
+            ktp: tr.querySelector(".anggota-ktp").value,
+            usia: tr.querySelector(".anggota-usia").value,
+            asal: tr.querySelector(".anggota-asal").value,
+          });
+        });
+
+        const jalur = DB.getJalurById(document.getElementById("jalur").value);
+        formData = {
+          jalurId: jalur.id,
+          jalurNama: jalur.nama,
+          tglNaik: document.getElementById("tgl-naik").value,
+          tglTurun: document.getElementById("tgl-turun").value,
+          ketua: document.getElementById("ketua").value,
+          phone: document.getElementById("phone").value,
+          email: document.getElementById("email").value,
+          jumlah: parseInt(document.getElementById("jml-anggota").value),
+          anggota,
+        };
+
+        // Render review
+        const fmt = (d) =>
+          new Date(d + "T00:00:00").toLocaleDateString("id-ID", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+        document.getElementById("review-content").innerHTML = `
     <div style="display:grid;gap:1rem;">
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:10px;">Informasi Pendakian</div>
@@ -388,75 +604,100 @@
       </div>
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:10px;">Daftar Anggota</div>
-        ${formData.anggota.map((a,i) => `
+        ${formData.anggota
+          .map(
+            (a, i) => `
           <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;">
-            <span><strong>${i+1}. ${a.nama}</strong>${i===0?' <span style="color:var(--amber-dark);font-size:0.7rem;">(Ketua)</span>':''}</span>
-            <span style="color:var(--text-soft);">${a.asal || '—'}</span>
-          </div>`).join('')}
+            <span><strong>${i + 1}. ${a.nama}</strong>${i === 0 ? ' <span style="color:var(--amber-dark);font-size:0.7rem;">(Ketua)</span>' : ""}</span>
+            <span style="color:var(--text-soft);">${a.asal || "—"}</span>
+          </div>`,
+          )
+          .join("")}
       </div>
     </div>`;
 
-    setStep(3);
-  }
+        setStep(3);
+      }
 
-  function setStep(n) {
-    currentStep = n;
-    document.getElementById('step1').classList.toggle('hidden', n !== 1);
-    document.getElementById('step2').classList.toggle('hidden', n !== 2);
-    document.getElementById('step3').classList.toggle('hidden', n !== 3);
-    for (let i = 1; i <= 3; i++) {
-      const item = document.getElementById(`step-item-${i}`);
-      item.classList.remove('active', 'done');
-      if (i < n) item.classList.add('done');
-      else if (i === n) item.classList.add('active');
-    }
-    window.scrollTo({ top: 200, behavior: 'smooth' });
-  }
+      function setStep(n) {
+        currentStep = n;
+        document.getElementById("step1").classList.toggle("hidden", n !== 1);
+        document.getElementById("step2").classList.toggle("hidden", n !== 2);
+        document.getElementById("step3").classList.toggle("hidden", n !== 3);
+        for (let i = 1; i <= 3; i++) {
+          const item = document.getElementById(`step-item-${i}`);
+          item.classList.remove("active", "done");
+          if (i < n) item.classList.add("done");
+          else if (i === n) item.classList.add("active");
+        }
+        window.scrollTo({ top: 200, behavior: "smooth" });
+      }
 
-  function submitDaftar() {
-    if (!document.getElementById('agree-terms').checked) {
-      alert('Centang persetujuan terlebih dahulu.');
-      return;
-    }
+      function submitDaftar() {
+        if (!document.getElementById("agree-terms").checked) {
+          alert("Centang persetujuan terlebih dahulu.");
+          return;
+        }
 
-    const result = DB.tambahPendaftaran(formData);
-    DB.kurangiKuota(formData.jalurId, formData.tglNaik, formData.jumlah);
+        const result = DB.tambahPendaftaran(formData);
+        DB.kurangiKuota(formData.jalurId, formData.tglNaik, formData.jumlah);
 
-    document.getElementById('nomor-val').textContent = result.id;
-    document.getElementById('modal-sukses').classList.add('open');
-  }
+        document.getElementById("nomor-val").textContent = result.id;
+        document.getElementById("modal-sukses").classList.add("open");
+      }
 
-  function resetForm() {
-    document.getElementById('jalur').value = '';
-    document.getElementById('tgl-naik').value = '';
-    document.getElementById('tgl-turun').value = '';
-    document.getElementById('ketua').value = '';
-    document.getElementById('phone').value = '';
-    document.getElementById('email').value = '';
-    document.getElementById('jml-anggota').value = '1';
-    document.getElementById('kuota-info').innerHTML = '';
-    formData = {};
-    setStep(1);
-  }
+      function resetForm() {
+        document.getElementById("jalur").value = "";
+        document.getElementById("tgl-naik").value = "";
+        document.getElementById("tgl-turun").value = "";
+        document.getElementById("ketua").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("email").value = "";
+        document.getElementById("jml-anggota").value = "1";
+        document.getElementById("kuota-info").innerHTML = "";
+        formData = {};
+        setStep(1);
+      }
 
-  function cekStatus() {
-    const input = document.getElementById('cek-input').value.trim();
-    const result = document.getElementById('status-result');
-    if (!input) { result.innerHTML = '<div class="alert alert-error">Masukkan nomor SIMAKSI atau email.</div>'; return; }
+      function cekStatus() {
+        const input = document.getElementById("cek-input").value.trim();
+        const result = document.getElementById("status-result");
+        if (!input) {
+          result.innerHTML =
+            '<div class="alert alert-error">Masukkan nomor SIMAKSI atau email.</div>';
+          return;
+        }
 
-    const semua = DB.getPendaftaran();
-    const found = semua.filter(p => p.id === input || p.email === input);
+        const semua = DB.getPendaftaran();
+        const found = semua.filter((p) => p.id === input || p.email === input);
 
-    if (found.length === 0) {
-      result.innerHTML = '<div class="alert alert-error">❌ Pendaftaran tidak ditemukan. Periksa kembali nomor atau email Anda.</div>';
-      return;
-    }
+        if (found.length === 0) {
+          result.innerHTML =
+            '<div class="alert alert-error">❌ Pendaftaran tidak ditemukan. Periksa kembali nomor atau email Anda.</div>';
+          return;
+        }
 
-    const fmt = d => new Date(d+'T00:00:00').toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
-    result.innerHTML = found.map(p => {
-      const statusClass = p.status === 'approved' ? 'badge-approved' : p.status === 'rejected' ? 'badge-rejected' : 'badge-pending';
-      const statusText = p.status === 'approved' ? '✅ Disetujui' : p.status === 'rejected' ? '❌ Ditolak' : '⏳ Menunggu Verifikasi';
-      return `
+        const fmt = (d) =>
+          new Date(d + "T00:00:00").toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          });
+        result.innerHTML = found
+          .map((p) => {
+            const statusClass =
+              p.status === "approved"
+                ? "badge-approved"
+                : p.status === "rejected"
+                  ? "badge-rejected"
+                  : "badge-pending";
+            const statusText =
+              p.status === "approved"
+                ? "✅ Disetujui"
+                : p.status === "rejected"
+                  ? "❌ Ditolak"
+                  : "⏳ Menunggu Verifikasi";
+            return `
       <div style="background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
           <div>
@@ -471,10 +712,11 @@
           <div><span style="color:var(--text-soft);">Tanggal Naik</span><br><strong>${fmt(p.tglNaik)}</strong></div>
           <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${p.jumlah} orang</strong></div>
         </div>
-        <div style="margin-top:8px;font-size:0.78rem;color:var(--text-soft);">Didaftarkan: ${new Date(p.createdAt).toLocaleString('id-ID')}</div>
+        <div style="margin-top:8px;font-size:0.78rem;color:var(--text-soft);">Didaftarkan: ${new Date(p.createdAt).toLocaleString("id-ID")}</div>
       </div>`;
-    }).join('');
-  }
-</script>
-</body>
+          })
+          .join("");
+      }
+    </script>
+  </body>
 </html>
