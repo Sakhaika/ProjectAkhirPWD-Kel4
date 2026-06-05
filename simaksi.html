@@ -121,10 +121,19 @@
               </div>
             </div>
             <div id="kuota-info" style="margin-bottom: 1.25rem"></div>
+
+            <div class="form-group">
+              <label>Destinasi Wisata <span>*</span></label>
+              <select id="destinasi" onchange="calculateTotalPrice()">
+                <option value="">-- Pilih Destinasi --</option>
+              </select>
+              <div class="form-error" id="err-destinasi">Pilih destinasi wisata</div>
+            </div>
+
             <div class="form-row">
               <div class="form-group">
                 <label>Jumlah Anggota <span>*</span></label>
-                <select id="jml-anggota" onchange="updateAnggotaCount()">
+                <select id="jml-anggota" onchange="updateAnggotaCount(); calculateTotalPrice()">
                   <option value="1">1 orang</option>
                   <option value="2">2 orang</option>
                   <option value="3">3 orang</option>
@@ -161,6 +170,9 @@
                 <div class="form-error" id="err-email">Email tidak valid</div>
               </div>
             </div>
+
+            <div id="price-info" style="margin-top: 1.25rem; margin-bottom: 1.25rem;"></div>
+
             <div style="display: flex; justify-content: flex-end">
               <button class="btn btn-primary" onclick="goStep2()">
                 Lanjut: Data Anggota →
@@ -386,6 +398,13 @@
           (jalurSel.innerHTML += `<option value="${j.id}">${j.nama} (Kuota: ${j.kuota_harian}/hari)</option>`),
       );
 
+      // Init destinasi dropdown
+      const destinasiSel = document.getElementById("destinasi");
+      DB.getDestinasi().forEach(
+        (d) =>
+          (destinasiSel.innerHTML += `<option value="${d.id}">${d.nama}</option>`),
+      );
+
       // Set min date
       const todayStr = new Date().toISOString().split("T")[0];
       document.getElementById("tgl-naik").min = todayStr;
@@ -463,6 +482,7 @@
             .toISOString()
             .split("T")[0];
         }
+        calculateTotalPrice(); // Recalculate price when date/jalur changes
       }
 
       function updateAnggotaCount() {
@@ -480,7 +500,80 @@
         <td><input type="text" class="anggota-asal" placeholder="Kota/Kabupaten"></td>
       </tr>`;
         }
+        calculateTotalPrice(); // Recalculate price when number of members changes
       }
+
+      function formatRupiah(angka) {
+        const formatter = new Intl.NumberFormat("id-ID", {
+          style: "currency",
+          currency: "IDR",
+          minimumFractionDigits: 0,
+        });
+        return formatter.format(angka);
+      }
+
+      function calculateTotalPrice() {
+        const destinasiId = document.getElementById("destinasi").value;
+        const jumlahAnggota = parseInt(document.getElementById("jml-anggota").value);
+        const priceInfoEl = document.getElementById("price-info");
+        priceInfoEl.innerHTML = ""; // Clear previous price info
+
+        if (!destinasiId || !jumlahAnggota) {
+          return;
+        }
+
+        const selectedDestinasi = DB.getDestinasi().find(d => d.id === destinasiId);
+        if (!selectedDestinasi) {
+          return;
+        }
+
+        let basePrice = 0;
+        let pricePerPerson = 0;
+        let priceDescription = "";
+
+        // Parse ticket price from string (e.g., "Rp 15.000 / orang", "Rp 25.000 / kapal", "Termasuk dalam SIMAKSI")
+        const ticket = selectedDestinasi.tiket;
+        if (ticket.includes("Termasuk dalam SIMAKSI")) {
+          basePrice = 0; // Assuming SIMAKSI covers this, or it's free
+          priceDescription = "Termasuk dalam SIMAKSI";
+        } else if (ticket.includes("/ orang")) {
+          pricePerPerson = parseInt(ticket.replace(/[^0-9]/g, ''));
+          basePrice = pricePerPerson * jumlahAnggota;
+          priceDescription = `${formatRupiah(pricePerPerson)} x ${jumlahAnggota} orang`;
+        } else if (ticket.includes("/ kapal")) {
+          basePrice = parseInt(ticket.replace(/[^0-9]/g, ''));
+          priceDescription = `${formatRupiah(basePrice)} per kapal`;
+        } else {
+          basePrice = parseInt(ticket.replace(/[^0-9]/g, '')) || 0;
+          priceDescription = formatRupiah(basePrice);
+        }
+
+        const totalHarga = basePrice;
+
+        priceInfoEl.innerHTML = `
+          <div style="background:var(--cream);border-radius:8px;padding:12px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+              <span style="font-weight:600;color:var(--green-deep);">Estimasi Biaya Destinasi</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;">
+              <span>${selectedDestinasi.nama}</span>
+              <span>${priceDescription}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
+              <span>Total</span>
+              <span>${formatRupiah(totalHarga)}</span>
+            </div>
+          </div>
+        `;
+
+        // Store price details in formData
+        formData.destinasiId = destinasiId;
+        formData.destinasiNama = selectedDestinasi.nama;
+        formData.destinasiHargaPerUnit = pricePerPerson > 0 ? pricePerPerson : basePrice; // Store unit price or base price
+        formData.destinasiTipeHarga = ticket.includes("/ orang") ? "per_orang" : ticket.includes("/ kapal") ? "per_kapal" : "fixed";
+        formData.totalHargaDestinasi = totalHarga;
+      }
+
 
       function showError(id, show) {
         document.getElementById(id).style.display = show ? "block" : "none";
@@ -501,6 +594,10 @@
           showError("err-tgl", true);
           valid = false;
         } else showError("err-tgl", false);
+        if (!document.getElementById("destinasi").value) { // New validation for destinasi
+          showError("err-destinasi", true);
+          valid = false;
+        } else showError("err-destinasi", false);
         if (!document.getElementById("ketua").value.trim()) {
           showError("err-ketua", true);
           valid = false;
@@ -563,6 +660,8 @@
         });
 
         const jalur = DB.getJalurById(document.getElementById("jalur").value);
+        const selectedDestinasi = DB.getDestinasi().find(d => d.id === document.getElementById("destinasi").value);
+
         formData = {
           jalurId: jalur.id,
           jalurNama: jalur.nama,
@@ -573,6 +672,9 @@
           email: document.getElementById("email").value,
           jumlah: parseInt(document.getElementById("jml-anggota").value),
           anggota,
+          destinasiId: selectedDestinasi.id,
+          destinasiNama: selectedDestinasi.nama,
+          totalHargaDestinasi: formData.totalHargaDestinasi, // Use the calculated price
         };
 
         // Render review
@@ -589,9 +691,21 @@
         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:10px;">Informasi Pendakian</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.875rem;">
           <div><span style="color:var(--text-soft);">Jalur</span><br><strong>${formData.jalurNama}</strong></div>
+          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${formData.destinasiNama}</strong></div>
           <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${formData.jumlah} orang</strong></div>
           <div><span style="color:var(--text-soft);">Tanggal Naik</span><br><strong>${fmt(formData.tglNaik)}</strong></div>
           <div><span style="color:var(--text-soft);">Tanggal Turun</span><br><strong>${fmt(formData.tglTurun)}</strong></div>
+        </div>
+      </div>
+      <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:10px;">Ringkasan Biaya</div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:4px;">
+          <span>Biaya Destinasi (${formData.destinasiNama})</span>
+          <span>${formatRupiah(formData.totalHargaDestinasi)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
+          <span>Total Pembayaran</span>
+          <span>${formatRupiah(formData.totalHargaDestinasi)}</span>
         </div>
       </div>
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
@@ -648,6 +762,7 @@
 
       function resetForm() {
         document.getElementById("jalur").value = "";
+        document.getElementById("destinasi").value = ""; // Reset destinasi
         document.getElementById("tgl-naik").value = "";
         document.getElementById("tgl-turun").value = "";
         document.getElementById("ketua").value = "";
@@ -655,6 +770,7 @@
         document.getElementById("email").value = "";
         document.getElementById("jml-anggota").value = "1";
         document.getElementById("kuota-info").innerHTML = "";
+        document.getElementById("price-info").innerHTML = ""; // Clear price info
         formData = {};
         setStep(1);
       }
@@ -708,9 +824,11 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;border-top:1px solid var(--border);padding-top:0.75rem;">
           <div><span style="color:var(--text-soft);">Jalur</span><br><strong>${p.jalurNama}</strong></div>
+          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${p.destinasiNama || 'N/A'}</strong></div>
           <div><span style="color:var(--text-soft);">Ketua</span><br><strong>${p.ketua}</strong></div>
           <div><span style="color:var(--text-soft);">Tanggal Naik</span><br><strong>${fmt(p.tglNaik)}</strong></div>
           <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${p.jumlah} orang</strong></div>
+          <div><span style="color:var(--text-soft);">Total Biaya Destinasi</span><br><strong>${formatRupiah(p.totalHargaDestinasi || 0)}</strong></div>
         </div>
         <div style="margin-top:8px;font-size:0.78rem;color:var(--text-soft);">Didaftarkan: ${new Date(p.createdAt).toLocaleString("id-ID")}</div>
       </div>`;
