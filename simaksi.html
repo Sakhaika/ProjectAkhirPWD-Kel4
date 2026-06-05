@@ -123,11 +123,10 @@
             <div id="kuota-info" style="margin-bottom: 1.25rem"></div>
 
             <div class="form-group">
-              <label>Destinasi Wisata <span>*</span></label>
+              <label>Destinasi Wisata</label>
               <select id="destinasi" onchange="calculateTotalPrice()">
-                <option value="">-- Pilih Destinasi --</option>
+                <option value="">-- Tidak memilih destinasi --</option>
               </select>
-              <div class="form-error" id="err-destinasi">Pilih destinasi wisata</div>
             </div>
 
             <div class="form-row">
@@ -390,6 +389,7 @@
       DB.init();
       let currentStep = 1;
       let formData = {};
+      const SIMAKSI_FEE_PER_PERSON = 50000; // Biaya SIMAKSI per orang
 
       // Init jalur dropdown
       const jalurSel = document.getElementById("jalur");
@@ -416,6 +416,9 @@
       if (params.get("tgl"))
         document.getElementById("tgl-naik").value = params.get("tgl");
       if (params.get("jalur") || params.get("tgl")) updateKuotaInfo();
+
+      // Initial price calculation
+      calculateTotalPrice();
 
       function switchTab(tab) {
         const isDaftar = tab === "daftar";
@@ -518,60 +521,64 @@
         const priceInfoEl = document.getElementById("price-info");
         priceInfoEl.innerHTML = ""; // Clear previous price info
 
-        if (!destinasiId || !jumlahAnggota) {
-          return;
+        let totalHargaDestinasi = 0;
+        let destinasiPriceDescription = "Tidak memilih destinasi";
+        let selectedDestinasi = null;
+
+        if (destinasiId) { // Only calculate if a destination is selected
+          selectedDestinasi = DB.getDestinasi().find(d => d.id === destinasiId);
+          if (selectedDestinasi) {
+            let basePrice = 0;
+            let pricePerUnit = 0; // Can be per person or per boat
+
+            const ticket = selectedDestinasi.tiket;
+            if (ticket.includes("Termasuk dalam SIMAKSI")) {
+              basePrice = 0;
+              destinasiPriceDescription = "Termasuk dalam SIMAKSI";
+            } else if (ticket.includes("/ orang")) {
+              pricePerUnit = parseInt(ticket.replace(/[^0-9]/g, ''));
+              basePrice = pricePerUnit * jumlahAnggota;
+              destinasiPriceDescription = `${formatRupiah(pricePerUnit)} x ${jumlahAnggota} orang`;
+            } else if (ticket.includes("/ kapal")) {
+              basePrice = parseInt(ticket.replace(/[^0-9]/g, ''));
+              destinasiPriceDescription = `${formatRupiah(basePrice)} per kapal`;
+            } else {
+              basePrice = parseInt(ticket.replace(/[^0-9]/g, '')) || 0;
+              destinasiPriceDescription = formatRupiah(basePrice);
+            }
+            totalHargaDestinasi = basePrice;
+          }
         }
 
-        const selectedDestinasi = DB.getDestinasi().find(d => d.id === destinasiId);
-        if (!selectedDestinasi) {
-          return;
-        }
-
-        let basePrice = 0;
-        let pricePerPerson = 0;
-        let priceDescription = "";
-
-        // Parse ticket price from string (e.g., "Rp 15.000 / orang", "Rp 25.000 / kapal", "Termasuk dalam SIMAKSI")
-        const ticket = selectedDestinasi.tiket;
-        if (ticket.includes("Termasuk dalam SIMAKSI")) {
-          basePrice = 0; // Assuming SIMAKSI covers this, or it's free
-          priceDescription = "Termasuk dalam SIMAKSI";
-        } else if (ticket.includes("/ orang")) {
-          pricePerPerson = parseInt(ticket.replace(/[^0-9]/g, ''));
-          basePrice = pricePerPerson * jumlahAnggota;
-          priceDescription = `${formatRupiah(pricePerPerson)} x ${jumlahAnggota} orang`;
-        } else if (ticket.includes("/ kapal")) {
-          basePrice = parseInt(ticket.replace(/[^0-9]/g, ''));
-          priceDescription = `${formatRupiah(basePrice)} per kapal`;
-        } else {
-          basePrice = parseInt(ticket.replace(/[^0-9]/g, '')) || 0;
-          priceDescription = formatRupiah(basePrice);
-        }
-
-        const totalHarga = basePrice;
+        const totalSimaksiFee = SIMAKSI_FEE_PER_PERSON * jumlahAnggota;
+        const grandTotal = totalSimaksiFee + totalHargaDestinasi;
 
         priceInfoEl.innerHTML = `
           <div style="background:var(--cream);border-radius:8px;padding:12px;">
             <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
-              <span style="font-weight:600;color:var(--green-deep);">Estimasi Biaya Destinasi</span>
+              <span style="font-weight:600;color:var(--green-deep);">Estimasi Biaya</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;">
-              <span>${selectedDestinasi.nama}</span>
-              <span>${priceDescription}</span>
+              <span>Biaya SIMAKSI (${jumlahAnggota} orang)</span>
+              <span>${formatRupiah(SIMAKSI_FEE_PER_PERSON)} x ${jumlahAnggota} = ${formatRupiah(totalSimaksiFee)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;">
+              <span>Biaya Destinasi (${selectedDestinasi ? selectedDestinasi.nama : 'Tidak memilih'})</span>
+              <span>${destinasiPriceDescription}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
-              <span>Total</span>
-              <span>${formatRupiah(totalHarga)}</span>
+              <span>Total Pembayaran</span>
+              <span>${formatRupiah(grandTotal)}</span>
             </div>
           </div>
         `;
 
         // Store price details in formData
-        formData.destinasiId = destinasiId;
-        formData.destinasiNama = selectedDestinasi.nama;
-        formData.destinasiHargaPerUnit = pricePerPerson > 0 ? pricePerPerson : basePrice; // Store unit price or base price
-        formData.destinasiTipeHarga = ticket.includes("/ orang") ? "per_orang" : ticket.includes("/ kapal") ? "per_kapal" : "fixed";
-        formData.totalHargaDestinasi = totalHarga;
+        formData.destinasiId = destinasiId || null;
+        formData.destinasiNama = selectedDestinasi ? selectedDestinasi.nama : "Tidak memilih destinasi";
+        formData.totalHargaDestinasi = totalHargaDestinasi;
+        formData.totalSimaksiFee = totalSimaksiFee;
+        formData.grandTotal = grandTotal;
       }
 
 
@@ -594,10 +601,7 @@
           showError("err-tgl", true);
           valid = false;
         } else showError("err-tgl", false);
-        if (!document.getElementById("destinasi").value) { // New validation for destinasi
-          showError("err-destinasi", true);
-          valid = false;
-        } else showError("err-destinasi", false);
+        // Destinasi is now optional, no validation needed here
         if (!document.getElementById("ketua").value.trim()) {
           showError("err-ketua", true);
           valid = false;
@@ -660,7 +664,8 @@
         });
 
         const jalur = DB.getJalurById(document.getElementById("jalur").value);
-        const selectedDestinasi = DB.getDestinasi().find(d => d.id === document.getElementById("destinasi").value);
+        const destinasiId = document.getElementById("destinasi").value;
+        const selectedDestinasi = destinasiId ? DB.getDestinasi().find(d => d.id === destinasiId) : null;
 
         formData = {
           jalurId: jalur.id,
@@ -672,9 +677,11 @@
           email: document.getElementById("email").value,
           jumlah: parseInt(document.getElementById("jml-anggota").value),
           anggota,
-          destinasiId: selectedDestinasi.id,
-          destinasiNama: selectedDestinasi.nama,
-          totalHargaDestinasi: formData.totalHargaDestinasi, // Use the calculated price
+          destinasiId: formData.destinasiId, // Use from formData which is updated by calculateTotalPrice
+          destinasiNama: formData.destinasiNama, // Use from formData
+          totalHargaDestinasi: formData.totalHargaDestinasi, // Use from formData
+          totalSimaksiFee: formData.totalSimaksiFee, // Use from formData
+          grandTotal: formData.grandTotal, // Use from formData
         };
 
         // Render review
@@ -700,12 +707,16 @@
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
         <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:10px;">Ringkasan Biaya</div>
         <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:4px;">
+          <span>Biaya SIMAKSI (${formData.jumlah} orang)</span>
+          <span>${formatRupiah(formData.totalSimaksiFee)}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.875rem;margin-bottom:4px;">
           <span>Biaya Destinasi (${formData.destinasiNama})</span>
           <span>${formatRupiah(formData.totalHargaDestinasi)}</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
           <span>Total Pembayaran</span>
-          <span>${formatRupiah(formData.totalHargaDestinasi)}</span>
+          <span>${formatRupiah(formData.grandTotal)}</span>
         </div>
       </div>
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
@@ -772,6 +783,7 @@
         document.getElementById("kuota-info").innerHTML = "";
         document.getElementById("price-info").innerHTML = ""; // Clear price info
         formData = {};
+        calculateTotalPrice(); // Recalculate initial price after reset
         setStep(1);
       }
 
@@ -824,11 +836,13 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;border-top:1px solid var(--border);padding-top:0.75rem;">
           <div><span style="color:var(--text-soft);">Jalur</span><br><strong>${p.jalurNama}</strong></div>
-          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${p.destinasiNama || 'N/A'}</strong></div>
+          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${p.destinasiNama || 'Tidak memilih destinasi'}</strong></div>
           <div><span style="color:var(--text-soft);">Ketua</span><br><strong>${p.ketua}</strong></div>
           <div><span style="color:var(--text-soft);">Tanggal Naik</span><br><strong>${fmt(p.tglNaik)}</strong></div>
           <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${p.jumlah} orang</strong></div>
           <div><span style="color:var(--text-soft);">Total Biaya Destinasi</span><br><strong>${formatRupiah(p.totalHargaDestinasi || 0)}</strong></div>
+          <div><span style="color:var(--text-soft);">Total Biaya SIMAKSI</span><br><strong>${formatRupiah(p.totalSimaksiFee || 0)}</strong></div>
+          <div><span style="color:var(--text-soft);">Grand Total</span><br><strong>${formatRupiah(p.grandTotal || 0)}</strong></div>
         </div>
         <div style="margin-top:8px;font-size:0.78rem;color:var(--text-soft);">Didaftarkan: ${new Date(p.createdAt).toLocaleString("id-ID")}</div>
       </div>`;
