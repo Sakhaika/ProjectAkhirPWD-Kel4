@@ -132,7 +132,13 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Jumlah Anggota <span>*</span></label>
-                <select id="jml-anggota" onchange="updateAnggotaCount(); calculateTotalPrice()">
+                <select
+                  id="jml-anggota"
+                  onchange="
+                    updateAnggotaCount();
+                    calculateTotalPrice();
+                  "
+                >
                   <option value="1">1 orang</option>
                   <option value="2">2 orang</option>
                   <option value="3">3 orang</option>
@@ -170,7 +176,10 @@
               </div>
             </div>
 
-            <div id="price-info" style="margin-top: 1.25rem; margin-bottom: 1.25rem;"></div>
+            <div
+              id="price-info"
+              style="margin-top: 1.25rem; margin-bottom: 1.25rem"
+            ></div>
 
             <div style="display: flex; justify-content: flex-end">
               <button class="btn btn-primary" onclick="goStep2()">
@@ -517,7 +526,9 @@
 
       function calculateTotalPrice() {
         const destinasiId = document.getElementById("destinasi").value;
-        const jumlahAnggota = parseInt(document.getElementById("jml-anggota").value);
+        const jumlahAnggota = parseInt(
+          document.getElementById("jml-anggota").value,
+        );
         const priceInfoEl = document.getElementById("price-info");
         priceInfoEl.innerHTML = ""; // Clear previous price info
 
@@ -525,8 +536,11 @@
         let destinasiPriceDescription = "Tidak memilih destinasi";
         let selectedDestinasi = null;
 
-        if (destinasiId) { // Only calculate if a destination is selected
-          selectedDestinasi = DB.getDestinasi().find(d => d.id === destinasiId);
+        if (destinasiId) {
+          // Only calculate if a destination is selected
+          selectedDestinasi = DB.getDestinasi().find(
+            (d) => d.id === destinasiId,
+          );
           if (selectedDestinasi) {
             let basePrice = 0;
             let pricePerUnit = 0; // Can be per person or per boat
@@ -536,14 +550,14 @@
               basePrice = 0;
               destinasiPriceDescription = "Termasuk dalam SIMAKSI";
             } else if (ticket.includes("/ orang")) {
-              pricePerUnit = parseInt(ticket.replace(/[^0-9]/g, ''));
+              pricePerUnit = parseInt(ticket.replace(/[^0-9]/g, ""));
               basePrice = pricePerUnit * jumlahAnggota;
               destinasiPriceDescription = `${formatRupiah(pricePerUnit)} x ${jumlahAnggota} orang`;
             } else if (ticket.includes("/ kapal")) {
-              basePrice = parseInt(ticket.replace(/[^0-9]/g, ''));
+              basePrice = parseInt(ticket.replace(/[^0-9]/g, ""));
               destinasiPriceDescription = `${formatRupiah(basePrice)} per kapal`;
             } else {
-              basePrice = parseInt(ticket.replace(/[^0-9]/g, '')) || 0;
+              basePrice = parseInt(ticket.replace(/[^0-9]/g, "")) || 0;
               destinasiPriceDescription = formatRupiah(basePrice);
             }
             totalHargaDestinasi = basePrice;
@@ -563,7 +577,7 @@
               <span>${formatRupiah(SIMAKSI_FEE_PER_PERSON)} x ${jumlahAnggota} = ${formatRupiah(totalSimaksiFee)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:4px;">
-              <span>Biaya Destinasi (${selectedDestinasi ? selectedDestinasi.nama : 'Tidak memilih'})</span>
+              <span>Biaya Destinasi (${selectedDestinasi ? selectedDestinasi.nama : "Tidak memilih"})</span>
               <span>${destinasiPriceDescription}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
@@ -575,12 +589,13 @@
 
         // Store price details in formData
         formData.destinasiId = destinasiId || null;
-        formData.destinasiNama = selectedDestinasi ? selectedDestinasi.nama : "Tidak memilih destinasi";
+        formData.destinasiNama = selectedDestinasi
+          ? selectedDestinasi.nama
+          : "Tidak memilih destinasi";
         formData.totalHargaDestinasi = totalHargaDestinasi;
         formData.totalSimaksiFee = totalSimaksiFee;
         formData.grandTotal = grandTotal;
       }
-
 
       function showError(id, show) {
         document.getElementById(id).style.display = show ? "block" : "none";
@@ -665,7 +680,9 @@
 
         const jalur = DB.getJalurById(document.getElementById("jalur").value);
         const destinasiId = document.getElementById("destinasi").value;
-        const selectedDestinasi = destinasiId ? DB.getDestinasi().find(d => d.id === destinasiId) : null;
+        const selectedDestinasi = destinasiId
+          ? DB.getDestinasi().find((d) => d.id === destinasiId)
+          : null;
 
         formData = {
           jalurId: jalur.id,
@@ -717,6 +734,17 @@
         <div style="display:flex;justify-content:space-between;font-size:1rem;font-weight:700;color:var(--green-deep);padding-top:8px;border-top:1px dashed var(--border);">
           <span>Total Pembayaran</span>
           <span>${formatRupiah(formData.grandTotal)}</span>
+        </div>
+      </div>
+      <div style="background:var(--cream);border-radius:8px;padding:1rem;">
+        <div style="font-size:0.75rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-bottom:12px;">Konfirmasi Pembayaran</div>
+        <div style="text-align:center;">
+          <p style="font-size:0.875rem;color:var(--text-mid);margin-bottom:12px;">Lakukan pembayaran sebesar <strong style="color:var(--green-deep);">${formatRupiah(formData.grandTotal)}</strong> melalui QRIS di bawah ini:</p>
+          <img src="images/qris-sakha.png" alt="QRIS Pembayaran" style="max-width:280px;width:100%;border-radius:8px;box-shadow:var(--shadow-md);margin-bottom:14px;">
+          <div style="background:#fff8e1;border:1px solid #f6c94e;border-radius:8px;padding:12px;font-size:0.82rem;color:#7a5c00;display:flex;align-items:flex-start;gap:8px;text-align:left;">
+            <span style="font-size:1.1rem;">⚠️</span>
+            <span>Setelah menekan <strong>Kirim Pendaftaran</strong>, mohon untuk menyelesaikan pembayaran dalam <strong>1×24 jam</strong>. lalu konfirmasi ke nomor WhatsApp <strong><a href="https://wa.me/6281383811090" target="_blank" style="color:#7a5c00;">+62 813-8381-1090</a></strong>. Pendaftaran yang belum dibayar setelah batas waktu akan otomatis dibatalkan.</span>
+          </div>
         </div>
       </div>
       <div style="background:var(--cream);border-radius:8px;padding:1rem;">
@@ -836,7 +864,7 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:0.85rem;border-top:1px solid var(--border);padding-top:0.75rem;">
           <div><span style="color:var(--text-soft);">Jalur</span><br><strong>${p.jalurNama}</strong></div>
-          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${p.destinasiNama || 'Tidak memilih destinasi'}</strong></div>
+          <div><span style="color:var(--text-soft);">Destinasi</span><br><strong>${p.destinasiNama || "Tidak memilih destinasi"}</strong></div>
           <div><span style="color:var(--text-soft);">Ketua</span><br><strong>${p.ketua}</strong></div>
           <div><span style="color:var(--text-soft);">Tanggal Naik</span><br><strong>${fmt(p.tglNaik)}</strong></div>
           <div><span style="color:var(--text-soft);">Jumlah</span><br><strong>${p.jumlah} orang</strong></div>
