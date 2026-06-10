@@ -7,17 +7,17 @@ const DB = {
   init() {
     // Cek versi database — jika versi lama, reset otomatis
     const versi = localStorage.getItem("rinjani_versi");
-    if (versi !== "2") {
+    if (versi !== "4") {
       localStorage.clear();
       this.seed();
       localStorage.setItem("rinjani_initialized", "true");
-      localStorage.setItem("rinjani_versi", "2");
+      localStorage.setItem("rinjani_versi", "4");
       return;
     }
     if (!localStorage.getItem("rinjani_initialized")) {
       this.seed();
       localStorage.setItem("rinjani_initialized", "true");
-      localStorage.setItem("rinjani_versi", "2");
+      localStorage.setItem("rinjani_versi", "4");
     }
   },
 
@@ -49,6 +49,8 @@ const DB = {
         kuota_harian: 30,
         gambar:
           "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+        video: "https://youtu.be/g4P4jwLyOBs?si=65BPsfu2klX4K4WJ",
+        videoId: "g4P4jwLyOBs",
       },
       {
         id: "sembalun",
@@ -62,6 +64,8 @@ const DB = {
         kuota_harian: 25,
         gambar:
           "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
+        video: "https://youtu.be/379EEoRIbIs?si=LX3LYBAG1NmGAWS1",
+        videoId: "379EEoRIbIs",
       },
       {
         id: "torean",
@@ -75,6 +79,8 @@ const DB = {
         kuota_harian: 15,
         gambar:
           "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80",
+        video: "https://youtu.be/tnLB7_waINM?si=qe7iewfgDcuZmEyQ",
+        videoId: "tnLB7_waINM",
       },
     ];
 
