@@ -139,50 +139,45 @@
 
         const mediaHtml = buildMediaHtml(j);
 
+        const infoHtml = `
+        <div>
+          <div class="section-tag">Jalur ${idx + 1}</div>
+          <h2 style="font-family:var(--font-display);font-size:2rem;color:var(--green-deep);margin-bottom:0.75rem;">${j.nama}</h2>
+          <p style="color:var(--text-mid);margin-bottom:1.5rem;">${j.deskripsi}</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:var(--green-pale);border-radius:8px;padding:1rem;text-align:center;">
+              <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.jarak}</div>
+              <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Jarak Total</div>
+            </div>
+            <div style="background:var(--amber-pale);border-radius:8px;padding:1rem;text-align:center;">
+              <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--amber-dark);">${j.estimasi}</div>
+              <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Durasi</div>
+            </div>
+            <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+              <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.ketinggian} m</div>
+              <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Titik Awal</div>
+            </div>
+            <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
+              <span class="badge badge-${j.tingkat.toLowerCase().replace(" ", "-")}" style="font-size:0.9rem;padding:6px 14px;">${j.tingkat}</span>
+              <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-top:4px;">Tingkat</div>
+            </div>
+          </div>
+
+          <div style="margin-bottom:1.5rem;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.82rem;">
+              <span style="font-weight:600;color:var(--green-deep);">Kuota Hari Ini</span>
+              <span style="color:var(--text-soft);">${k ? k.sisa + "/" + k.kapasitas + " tersisa" : "N/A"}</span>
+            </div>
+            <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct, 100)}%"></div></div>
+          </div>
+
+          <a href="simaksi.html?jalur=${j.id}" class="btn btn-primary">📋 Daftar via Jalur Ini →</a>
+        </div>`;
+
         container.innerHTML += `
-    <div id="${j.id}" style="display:grid;grid-template-columns:${isEven ? "1fr 1fr" : "1fr 1fr"};gap:3rem;align-items:center;margin-bottom:4rem;padding-bottom:4rem;border-bottom:1px solid var(--border);">
-      ${
-        isEven
-          ? `
-      ${mediaHtml}
-      <div>`
-          : `
-      <div>`
-      }
-        <div class="section-tag">Jalur ${idx + 1}</div>
-        <h2 style="font-family:var(--font-display);font-size:2rem;color:var(--green-deep);margin-bottom:0.75rem;">${j.nama}</h2>
-        <p style="color:var(--text-mid);margin-bottom:1.5rem;">${j.deskripsi}</p>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
-          <div style="background:var(--green-pale);border-radius:8px;padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.jarak}</div>
-            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Jarak Total</div>
-          </div>
-          <div style="background:var(--amber-pale);border-radius:8px;padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--amber-dark);">${j.estimasi}</div>
-            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Durasi</div>
-          </div>
-          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
-            <div style="font-size:1.5rem;font-weight:700;font-family:var(--font-display);color:var(--green-deep);">${j.ketinggian} m</div>
-            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);">Titik Awal</div>
-          </div>
-          <div style="background:var(--cream);border:1px solid var(--border);border-radius:8px;padding:1rem;text-align:center;">
-            <span class="badge badge-${j.tingkat.toLowerCase().replace(" ", "-")}" style="font-size:0.9rem;padding:6px 14px;">${j.tingkat}</span>
-            <div style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-soft);margin-top:4px;">Tingkat</div>
-          </div>
-        </div>
-
-        <div style="margin-bottom:1.5rem;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:0.82rem;">
-            <span style="font-weight:600;color:var(--green-deep);">Kuota Hari Ini</span>
-            <span style="color:var(--text-soft);">${k ? k.sisa + "/" + k.kapasitas + " tersisa" : "N/A"}</span>
-          </div>
-          <div class="kuota-bar"><div class="kuota-fill ${fillClass}" style="width:${Math.min(pct, 100)}%"></div></div>
-        </div>
-
-        <a href="simaksi.html?jalur=${j.id}" class="btn btn-primary">📋 Daftar via Jalur Ini →</a>
-      </div>
-      ${!isEven ? `</div>${mediaHtml}` : "</div>"}
+    <div id="${j.id}" style="display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;margin-bottom:4rem;padding-bottom:4rem;border-bottom:1px solid var(--border);">
+      ${isEven ? `${mediaHtml}${infoHtml}` : `${infoHtml}${mediaHtml}`}
     </div>`;
       });
 
